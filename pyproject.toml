@@ -1,0 +1,53 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "danda"
+version = "0.1.0"
+description = "Automatically prepare pandas DataFrames for analysis."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+
+authors = [
+    { name = "Mohammad Shalabi" }
+]
+
+keywords = [
+    "pandas",
+    "csv",
+    "dataframe",
+    "preprocessing",
+    "cleaning",
+]
+
+dependencies = [
+    "pandas>=2.2",
+    "numpy>=1.26",
+]
+
+[project.optional-dependencies]
+excel = [
+    "openpyxl"
+]
+
+parquet = [
+    "pyarrow"
+]
+
+dev = [
+    "pytest",
+    "pytest-cov",
+    "ruff",
+    "mypy",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+line-length = 88
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
