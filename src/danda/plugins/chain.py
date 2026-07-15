@@ -24,7 +24,6 @@ class ChainPlugin(Plugin):
         return
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
-
         current_plugin: Plugin
 
         for plugin in self._plugins:
