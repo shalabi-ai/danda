@@ -40,6 +40,12 @@ jobs:
       - name: Check distribution
         run: twine check dist/*
 
+      - name: Check token length
+        env:
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: |
+          echo "Token length: ${#TWINE_PASSWORD}"
+
       - name: Publish to PyPI
         env:
           TWINE_USERNAME: __token__
