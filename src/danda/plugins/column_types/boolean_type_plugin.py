@@ -9,8 +9,7 @@ class BooleanTypePlugin(TypePlugin):
     _mapping = {
         True: True,
         False: False,
-        1: True,
-        0: False,
+
         "1": True,
         "0": False,
         "true": True,
@@ -18,19 +17,28 @@ class BooleanTypePlugin(TypePlugin):
         "True": True,
         "False": False,
     }
+    _mapping_number = {
+        1: True,
+        0: False,
+    }
 
     def __init__(self, report: ReportCollector):
         super().__init__("BooleanTypePlugin", report)
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        mapping = {
+            **self._mapping,
+            **self._mapping_number,
+        }
         columns = ColumnTypeIdentification.boolean_columns(df)
         result = df.copy()
         for column in columns:
             result[column] = (
                 result[column]
-                .map(lambda x: self._mapping.get(x, x) if pd.notna(x) else x)
+                .replace(mapping) #.map(lambda x: self._mapping.get(x, x) if pd.notna(x) else x)
                 .astype("boolean")
             )
+
 
         return result
 

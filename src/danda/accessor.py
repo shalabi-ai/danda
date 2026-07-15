@@ -1,5 +1,4 @@
 import pandas as pd
-from danda.plugins import report_collector
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
 from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin

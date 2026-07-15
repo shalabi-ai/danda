@@ -1,8 +1,6 @@
 import pandas as pd
 from danda.plugins.clean.clean_plugin import CleanPlugin
-from danda.plugins.plugin import Plugin
 from danda.plugins.report_collector import ReportCollector
-
 
 class DropDuplicatesPlugin(CleanPlugin):
     def __init__(self, report: ReportCollector):

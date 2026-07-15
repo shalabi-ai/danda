@@ -1,8 +1,5 @@
 import unittest
-
 import pandas as pd
-from danda.plugins import report_collector
-
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.report_collector import ReportCollector
 from tests.plugins.counter_plugin import CounterPlugin

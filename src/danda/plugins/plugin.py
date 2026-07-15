@@ -1,7 +1,5 @@
 from abc import ABC, abstractmethod
 import pandas as pd
-from typing import Any
-
 from danda.plugins.report_collector import ReportCollector
 
 

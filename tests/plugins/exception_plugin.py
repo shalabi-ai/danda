@@ -19,4 +19,4 @@ class ExceptionPlugin(Plugin):
         return 0
 
     def _report(self, data, report: ReportCollector) -> str:
-        return f""
+        return ""
