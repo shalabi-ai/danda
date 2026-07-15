@@ -23,12 +23,29 @@ A library that aims to be a drop-in replacement for pd.read_csv() and automatica
 * removes empty rows and columns
 * optionally generates a cleaning report
 
-```js
-import dataforge as dg
+```
+import danda as dg
 
 df = dg.read_csv("sales.csv")
 df = dg.read_excel("sales.xlsx")
 df = dg.read_parquet("sales.parquet")
+```
+
+## Installation
+
+```bash
+pip install danda
+```
+
+## Usage
+
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("employees.csv")
+
+clean_df = df.dg.clean()
 ```
 
 ## What happens automatically

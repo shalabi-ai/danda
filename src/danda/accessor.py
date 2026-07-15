@@ -1,4 +1,12 @@
 import pandas as pd
+from danda.plugins import report_collector
+from danda.plugins.chain import ChainPlugin
+from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
+from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin
+from danda.plugins.clean.empty_rows_plugin import EmptyRowsPlugin
+from danda.plugins.clean.empty_spaces import EmptySpacesPlugin
+from danda.plugins.report_collector import ReportCollector
+
 
 #
 #df.dg.clean()
@@ -12,12 +20,21 @@ class DandaAccessor:
 
     def __init__(self, pandas_obj):
         self._df = pandas_obj
+        self.report_collector = ReportCollector()
 
     def clean(self):
-        return
+        plugins = [
+            EmptyRowsPlugin(self.report_collector),
+            EmptyColumnsPlugin(self.report_collector),
+            DropDuplicatesPlugin(self.report_collector),
+            EmptySpacesPlugin(self.report_collector),
+        ]
+        chain_plugin = ChainPlugin(plugins, self.report_collector)
+        return chain_plugin.run(self._df)
 
     def optimize(self):
         return
 
+    @property
     def report(self):
-        return
+        return self.report_collector.report
