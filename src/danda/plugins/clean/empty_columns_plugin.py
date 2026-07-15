@@ -4,22 +4,17 @@ from danda.plugins.plugin import Plugin
 from danda.plugins.report_collector import ReportCollector
 
 
-class CounterPlugin(Plugin):
-    name: str = "CounterPlugin"
-
+class EmptyColumnsPlugin(Plugin):
     def __init__(self, report: ReportCollector):
-        super().__init__(CounterPlugin.name, "CounterCategory", report)
-        self._counter = 0
+        super().__init__("EmptyColumnsPlugin", "clean", report)
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
-        self._counter += 1
-        return df
+        result =  df.dropna(axis=1, how="all")
+        return result
 
     def _get_report_data(self, before: pd.DataFrame, after: pd.DataFrame, report: ReportCollector):
-        return self.get_count()
+        return len(before.columns) - len(after.columns)
 
     def _report(self, data, report: ReportCollector) -> str:
-        return f"count: {self.get_count()}"
+        return f'Number of deleted columns: {data}'
 
-    def get_count(self)->int:
-        return self._counter

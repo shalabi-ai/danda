@@ -7,3 +7,5 @@ __all__ = [
     "read_excel",
     "DandaAccessor",
 ]
+
+clean_plugin = "clean"
