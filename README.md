@@ -31,6 +31,23 @@ df = dg.read_excel("sales.xlsx")
 df = dg.read_parquet("sales.parquet")
 ```
 
+## Installation
+
+```bash
+pip install danda
+```
+
+## Usage
+
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("employees.csv")
+
+clean_df = df.dg.clean()
+```
+
 ## What happens automatically
 * Remove empty rows
 * Remove empty columns

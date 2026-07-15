@@ -8,6 +8,8 @@ RUN pip install \
     pytest \
     pytest-cov \
     ruff \
-    mypy
+    mypy \
+    twine \
+    build
 
 CMD ["bash"]
