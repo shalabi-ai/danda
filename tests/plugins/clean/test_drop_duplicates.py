@@ -1,7 +1,7 @@
 import unittest
 import pandas as pd
 
-from danda.plugins.clean.drop_duplicates import DropDuplicates
+from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
 from danda.plugins.report_collector import ReportCollector
 
 
@@ -9,7 +9,7 @@ class TestDropDuplicates(unittest.TestCase):
 
     def setUp(self):
         self.report = ReportCollector()
-        self.plugin = DropDuplicates(self.report)
+        self.plugin = DropDuplicatesPlugin(self.report)
 
     def test_drop_duplicate_rows(self):
         df = pd.DataFrame({

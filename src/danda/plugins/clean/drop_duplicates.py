@@ -4,7 +4,7 @@ from danda.plugins.plugin import Plugin
 from danda.plugins.report_collector import ReportCollector
 
 
-class DropDuplicates(CleanPlugin):
+class DropDuplicatesPlugin(CleanPlugin):
     def __init__(self, report: ReportCollector):
         super().__init__("DropDuplicates", report)
 

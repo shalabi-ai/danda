@@ -2,7 +2,7 @@ import unittest
 import pandas as pd
 import pandas.testing as pdt
 from danda.plugins.report_collector import ReportCollector
-from danda.plugins.clean.emptay_spaces import EmptySpacesPlugin
+from danda.plugins.clean.empty_spaces import EmptySpacesPlugin
 
 
 class TestEmptySpacesPlugin(unittest.TestCase):

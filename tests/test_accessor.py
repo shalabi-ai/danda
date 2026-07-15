@@ -23,7 +23,7 @@ class AccessorTestCase(unittest.TestCase):
 
     def test_report(self):
         p = pd.DataFrame()
-        p.dg.report()
+        p.dg.report
         self.assertEqual(True, True)
 
 if __name__ == '__main__':
