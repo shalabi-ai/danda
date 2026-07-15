@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 import pandas as pd
+from typing import final
 from danda.plugins.report_collector import ReportCollector
 
 
@@ -46,5 +47,5 @@ class Plugin(ABC):
         pass
 
     @abstractmethod
-    def _report(self, data, report: ReportCollector) -> str:
+    def _report(self, data, report: ReportCollector):
         pass
