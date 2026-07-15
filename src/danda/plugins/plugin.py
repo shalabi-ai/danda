@@ -11,6 +11,7 @@ class Plugin(ABC):
         self.report_collector = report
 
 
+    @final
     def run(self, df: pd.DataFrame, report: ReportCollector | None = None,) -> pd.DataFrame:
         if report is None:
             report = self.report_collector
