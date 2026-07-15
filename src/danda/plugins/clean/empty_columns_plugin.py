@@ -1,12 +1,13 @@
 import pandas as pd
+from danda.plugins.clean.clean_plugin import CleanPlugin
 
 from danda.plugins.plugin import Plugin
 from danda.plugins.report_collector import ReportCollector
 
 
-class EmptyColumnsPlugin(Plugin):
+class EmptyColumnsPlugin(CleanPlugin):
     def __init__(self, report: ReportCollector):
-        super().__init__("EmptyColumnsPlugin", "clean", report)
+        super().__init__("EmptyColumnsPlugin", report)
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
         result =  df.dropna(axis=1, how="all")

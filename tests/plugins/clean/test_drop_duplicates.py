@@ -1,0 +1,86 @@
+import unittest
+import pandas as pd
+
+from danda.plugins.clean.drop_duplicates import DropDuplicates
+from danda.plugins.report_collector import ReportCollector
+
+
+class TestDropDuplicates(unittest.TestCase):
+
+    def setUp(self):
+        self.report = ReportCollector()
+        self.plugin = DropDuplicates(self.report)
+
+    def test_drop_duplicate_rows(self):
+        df = pd.DataFrame({
+            "A": [1, 2, 2, 3],
+            "B": ["a", "b", "b", "c"],
+        })
+
+        result = self.plugin.run(df)
+
+        expected = pd.DataFrame({
+            "A": [1, 2, 3],
+            "B": ["a", "b", "c"],
+        }, index=[0, 1, 3])
+
+        pd.testing.assert_frame_equal(result, expected)
+
+    def test_report_data(self):
+        df = pd.DataFrame({
+            "A": [1, 2, 2, 3],
+            "B": ["a", "b", "b", "c"],
+        })
+
+        self.plugin.run(df)
+
+        expected = {
+            "clean": {
+                "DropDuplicates": 1
+            }
+        }
+
+        self.assertEqual(self.report.data, expected)
+
+    def test_report(self):
+        df = pd.DataFrame({
+            "A": [1, 2, 2, 3],
+            "B": ["a", "b", "b", "c"],
+        })
+
+        self.plugin.run(df)
+
+        expected = {
+            "clean": {
+                "DropDuplicates": "Number of deleted rows: 1"
+            }
+        }
+
+        self.assertEqual(self.report.report, expected)
+
+    def test_no_duplicates(self):
+        df = pd.DataFrame({
+            "A": [1, 2, 3],
+            "B": ["a", "b", "c"],
+        })
+
+        result = self.plugin.run(df)
+
+        pd.testing.assert_frame_equal(result, df.reset_index(drop=True))
+
+        self.assertEqual(
+            self.report.data,
+            {
+                "clean": {
+                    "DropDuplicates": 0
+                }
+            },
+        )
+
+
+if __name__ == "__main__":
+    unittest.main()
+
+
+if __name__ == '__main__':
+    unittest.main()
