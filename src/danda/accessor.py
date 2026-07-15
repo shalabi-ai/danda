@@ -30,11 +30,14 @@ class DandaAccessor:
             EmptySpacesPlugin(self.report_collector),
         ]
         chain_plugin = ChainPlugin(plugins, self.report_collector)
-        return chain_plugin.run(self._df)
+        result = chain_plugin.run(self._df)
+        result.attrs["danda_report"] = self.report_collector.report
+
+        return result
 
     def optimize(self):
         return
 
     @property
     def report(self):
-        return self.report_collector.report
+        return self._df.attrs.get("danda_report")
