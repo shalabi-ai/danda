@@ -4,7 +4,7 @@ from danda.plugins.column_types.category_type_plugin import CategoryTypePlugin
 from danda.plugins.report_collector import ReportCollector
 from pandas.api.types import is_categorical_dtype
 from pandas.testing import assert_frame_equal
-
+import danda # noqa: F401  # registers the pandas accessor
 
 
 class TestCategoryTypePlugin(unittest.TestCase):
@@ -148,6 +148,26 @@ class TestCategoryTypePlugin(unittest.TestCase):
         expected["category"] = expected["category"].astype("category")
 
         assert_frame_equal(result, expected)
+
+    def test_category_threshold_configuration(self):
+        # 8 unique values / 100 rows = 0.08 unique ratio
+        df = pd.DataFrame({
+            "category": [f"value_{i % 8}" for i in range(100)]
+        })
+
+        plugin = CategoryTypePlugin(ReportCollector())
+        result = plugin.run(df)
+
+        # Should remain object because 0.08 > 0.05
+        self.assertEqual(result["category"].dtype, "category")
+
+        df.dg.config.types.category_threshold = 0.05
+
+        plugin = CategoryTypePlugin(ReportCollector())
+        result = plugin.run(df)
+
+        # Should remain object because 0.08 > 0.05
+        self.assertNotEqual(result["category"].dtype, "category")
 
 
 if __name__ == "__main__":

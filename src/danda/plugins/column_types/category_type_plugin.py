@@ -43,9 +43,12 @@ class CategoryTypePlugin(TypePlugin):
         return category_columns
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        config = self._get_config_params(df)
+        threshold = config.get("threshold")
+
         result = df.copy()
 
-        columns = self._find_category_columns(df)
+        columns = self._find_category_columns(df, threshold)
 
         for column in columns:
             result[column] = result[column].astype("category")

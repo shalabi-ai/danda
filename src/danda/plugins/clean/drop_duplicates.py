@@ -9,7 +9,7 @@ class DropDuplicatesPlugin(CleanPlugin):
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
         config = self._get_config_params(df)
         ignore_index=config.get("ignore_index", False)
-        return df.drop_duplicates(ignore_index=ignore_index) #ignore_index=True)
+        return df.drop_duplicates(ignore_index=ignore_index)
 
     def _report(self, data, report: ReportCollector) -> str:
         return f"Number of deleted rows: {data}"

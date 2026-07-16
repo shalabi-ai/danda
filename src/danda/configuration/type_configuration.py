@@ -14,17 +14,17 @@ class TypeConfig(ConfigSection):
         },
     )
 
-    boolean_threshold: float = field(
-        default=1.0,
-        metadata={
-            "description": (
-                "Minimum fraction of non-null values that must be "
-                "boolean-like (True/False, 0/1, Yes/No, etc.) before "
-                "the column is considered boolean."
-            ),
-            "feature": "Boolean Detection",
-        },
-    )
+#boolean_threshold: float = field(
+#    default=1.0,
+#    metadata={
+#        "description": (
+#            "Minimum fraction of non-null values that must be "
+#            "boolean-like (True/False, 0/1, Yes/No, etc.) before "
+#            "the column is considered boolean."
+#        ),
+#        "feature": "Boolean Detection",
+#    },
+#)
 
     datetime_enabled: bool = field(
         default=True,
@@ -37,7 +37,7 @@ class TypeConfig(ConfigSection):
     )
 
     datetime_threshold: float = field(
-        default=0.95,
+        default=1.0,
         metadata={
             "description": (
                 "Minimum fraction of non-null values that must be "

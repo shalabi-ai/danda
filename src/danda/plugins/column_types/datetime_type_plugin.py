@@ -49,9 +49,12 @@ class DateTimeTypePlugin(TypePlugin):
         return datetime_columns
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        config = self._get_config_params(df)
+        threshold = config.get("threshold")
+
         result = df.copy()
 
-        columns = self._find_datetime_columns(df)
+        columns = self._find_datetime_columns(df, threshold)
 
         for column in columns:
             result[column] = pd.to_datetime(result[column], errors="coerce", format="mixed",)

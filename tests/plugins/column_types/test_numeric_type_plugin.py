@@ -4,7 +4,7 @@ from danda.plugins.column_types.numeric_type_plugin import NumericTypePlugin
 from danda.plugins.report_collector import ReportCollector
 from pandas.testing import assert_frame_equal
 from pandas.api.types import is_numeric_dtype
-
+import danda # noqa: F401  # registers the pandas accessor
 
 class TestNumericTypePlugin(unittest.TestCase):
 
@@ -47,6 +47,21 @@ class TestNumericTypePlugin(unittest.TestCase):
 
         expected_report = {'types': {'NumericTypePlugin': 'Converted the following columns to numeric: numbers'}}
         self.assertEqual(expected_report, self.report.report)
+
+    def test_threshold(self):
+        df = pd.DataFrame({
+            "numbers": ["1", "hello", "3", "4"]
+        })
+
+        result = self.plugin.run(df)
+        dtype = result["numbers"].dtype
+        self.assertEqual(dtype.name, "str")
+
+
+        df.dg.config.types.numeric_threshold = 0.75
+        result = self.plugin.run(df)
+        dtype = result["numbers"].dtype
+        self.assertEqual(dtype.name, 'float64')
 
     def test_success_threshold(self):
         df = pd.DataFrame({

@@ -54,5 +54,5 @@ class BooleanTypePlugin(TypePlugin):
         config = self._get_config(df).types
         return {
             "enabled": config.boolean_enabled,
-            "threshold": config.boolean_threshold
+            #"threshold": config.boolean_threshold
         }
