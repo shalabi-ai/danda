@@ -1,8 +1,5 @@
 import unittest
-
 import pandas as pd
-from danda.plugins import report_collector
-
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.report_collector import ReportCollector
 from tests.plugins.counter_plugin import CounterPlugin
@@ -19,10 +16,19 @@ class ChainPluginTestCase(unittest.TestCase):
         chain.run(pd.DataFrame())
         self.assertEqual(counter_plugin.get_count(), 1)
 
-        expected_data = {'chain': {'ChainPlugin': {'data': {'CounterCategory': {'CounterPlugin': 1}}, 'plugins': 1}}}
+        expected_data = {
+            'CounterCategory': {'CounterPlugin': 1},
+            'chain': {
+                'ChainPlugin': {
+                    'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0},
+                    'plugin_names': ['CounterPlugin'], 'plugins_count': 1}}}
         self.assertEqual(expected_data, report_collector.data)
 
-        expected_report = {'chain': {'ChainPlugin': "Number of plugins: 1\n report: {'CounterCategory': {'CounterPlugin': 'count: 1'}}"}}
+        expected_report = {
+            'CounterCategory': {'CounterPlugin': 'count: 1'},
+            'chain': {
+                'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0},
+                                'plugin_names': ['CounterPlugin'], 'plugins_count': 1}}}
         self.assertEqual(expected_report, report_collector.report)
 
         # counter plugin report should not be touched
@@ -34,10 +40,10 @@ class ChainPluginTestCase(unittest.TestCase):
         chain = ChainPlugin([ExceptionPlugin(report_collector)], report_collector)
         chain.run(pd.DataFrame())
 
-        expected_data = {'chain': {'ChainPlugin': {'data': {}, 'plugins': 1}}}
+        expected_data = {'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['ExceptionPlugin'], 'plugins_count': 1}}}
         self.assertEqual(expected_data, report_collector.data)
 
-        expected_report = {'chain': {'ChainPlugin': "Number of plugins: 1\n report: {'exception': {'ExceptionPlugin': 'No active exception to reraise'}}"}}
+        expected_report = {'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['ExceptionPlugin'], 'plugins_count': 1}}, 'exception': {'ExceptionPlugin': 'No active exception to reraise'}}
         self.assertEqual(expected_report, report_collector.report)
 
     def test_exception_counter_plugin(self):
@@ -45,10 +51,10 @@ class ChainPluginTestCase(unittest.TestCase):
         chain = ChainPlugin([ExceptionPlugin(report_collector), CounterPlugin(report_collector)], report_collector)
         chain.run(pd.DataFrame())
 
-        expected_data = {'chain': {'ChainPlugin': {'data': {'CounterCategory': {'CounterPlugin': 1}}, 'plugins': 2}}}
+        expected_data = {'CounterCategory': {'CounterPlugin': 1}, 'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['ExceptionPlugin', 'CounterPlugin'], 'plugins_count': 2}}}
         self.assertEqual(expected_data, report_collector.data)
 
-        expected_report = {'chain': {'ChainPlugin': "Number of plugins: 2\n report: {'exception': {'ExceptionPlugin': 'No active exception to reraise'}, 'CounterCategory': {'CounterPlugin': 'count: 1'}}"}}
+        expected_report = {'CounterCategory': {'CounterPlugin': 'count: 1'}, 'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['ExceptionPlugin', 'CounterPlugin'], 'plugins_count': 2}}, 'exception': {'ExceptionPlugin': 'No active exception to reraise'}}
         self.assertEqual(expected_report, report_collector.report)
 
     def test_add_invalid_plugins(self):
@@ -71,10 +77,10 @@ class ChainPluginTestCase(unittest.TestCase):
         chain.run(data_frame)
         self.assertEqual(counter_plugin.get_count(), 3)
 
-        expected_data ={'chain': {'ChainPlugin': {'data': {'CounterCategory': {'CounterPlugin': 1, 'CounterPlugin_2': 2, 'CounterPlugin_3': 3}}, 'plugins': 3}}}
+        expected_data = {'CounterCategory': {'CounterPlugin': 1, 'CounterPlugin_2': 2, 'CounterPlugin_3': 3}, 'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['CounterPlugin', 'CounterPlugin', 'CounterPlugin'], 'plugins_count': 3}}}
         self.assertEqual(expected_data, report_collector.data)
 
-        expected_report = {'chain': {'ChainPlugin': "Number of plugins: 3\n report: {'CounterCategory': {'CounterPlugin': 'count: 1', 'CounterPlugin_2': 'count: 2', 'CounterPlugin_3': 'count: 3'}}"}}
+        expected_report = {'CounterCategory': {'CounterPlugin': 'count: 1', 'CounterPlugin_2': 'count: 2', 'CounterPlugin_3': 'count: 3'}, 'chain': {'ChainPlugin': {'memory_usage': {'after_bytes': 132, 'before_bytes': 132, 'saved_bytes': 0, 'saved_percent': 0.0}, 'plugin_names': ['CounterPlugin', 'CounterPlugin', 'CounterPlugin'], 'plugins_count': 3}}}
         self.assertEqual(expected_report, report_collector.report)
 
     def test_execute_empty_chain(self):

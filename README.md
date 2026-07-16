@@ -1,43 +1,216 @@
 # danda
-Automatically prepare pandas DataFrames for analysis.
-Danda automatically:
 
-* removes empty rows
-* removes empty columns
-* trims whitespace
-* detects dates
-* detects booleans
-* detects categorical columns
-* optimizes memory
-* generates a cleaning report
+> **_Stop writing the same pandas preprocessing code over and over._**
+> 
+> **Automatically clean and optimize pandas DataFrames with one line of code.**
 
+`danda` is a lightweight extension for pandas that prepares messy data for analysis by automatically cleaning, converting data types, and reducing memory usage.
 
-A library that aims to be a drop-in replacement for pd.read_csv() and automatically:
+Instead of writing dozens of lines of preprocessing code, simply do:
 
-* detects column types
-* converts low-cardinality strings to category
-* parses dates
-* optimizes integer/float dtypes
-* trims whitespace
-* standardizes missing values ("", "NA", "N/A", "null", etc.)
-* removes empty rows and columns
-* optionally generates a cleaning report
-
-```
-import danda as dg
-
-df = dg.read_csv("sales.csv")
-df = dg.read_excel("sales.xlsx")
-df = dg.read_parquet("sales.parquet")
+```python
+clean_df = df.dg.clean().dg.optimize()
 ```
 
-## Installation
+---
+
+## Why danda?
+
+Every data scientist has written code like this:
+
+```python
+df = pd.read_csv("sales.csv")
+
+df = df.dropna(how="all")
+df = df.dropna(axis=1, how="all")
+df = df.drop_duplicates()
+
+df["created_at"] = pd.to_datetime(df["created_at"])
+df["active"] = df["active"].astype(bool)
+df["country"] = df["country"].astype("category")
+df["price"] = pd.to_numeric(df["price"])
+```
+
+With **danda**, all of that becomes:
+
+```python
+df = pd.read_csv("sales.csv")
+
+df = df.dg.clean().dg.optimize()
+```
+
+---
+
+# Features
+
+## 🧹 Data cleaning
+
+Automatically:
+
+- Remove empty rows
+- Remove empty columns
+- Remove duplicate rows
+- Strip leading/trailing whitespace
+
+Example:
+
+| Before | After |
+|---------|-------|
+| `" John "` | `"John"` |
+| `" Alice"` | `"Alice"` |
+| `"Bob "` | `"Bob"` |
+
+---
+
+## 📅 Automatic type detection
+
+Automatically converts string columns to their appropriate pandas dtypes.
+
+### Boolean
+
+```
+"True"
+"False"
+"0"
+"1"
+0
+1
+```
+
+↓
+
+```
+boolean
+```
+
+---
+
+### Datetime
+
+```
+2024-01-01
+2024/01/01
+2024-01-01T12:30:00
+Jan 1, 2024
+```
+
+↓
+
+```
+datetime64[ns]
+```
+
+---
+
+### Numeric
+
+```
+"10"
+"25"
+"3.14"
+```
+
+↓
+
+```
+int64 / float64
+```
+
+---
+
+### Category
+
+Low-cardinality columns are automatically converted to pandas `category` dtype to reduce memory usage.
+
+Example:
+
+```
+Country
+
+Germany
+France
+Germany
+Germany
+France
+```
+
+↓
+
+```
+category
+```
+
+---
+
+## 📉 Memory optimization
+
+Optimizing dtypes can dramatically reduce memory usage.
+
+```python
+before.dg.compare_memory(after)
+```
+
+Example:
+
+```
+Before : 95 MB
+After  : 21 MB
+
+Saved : 74 MB (77.9%)
+```
+
+---
+
+## 📄 Cleaning reports
+
+Every operation produces a report describing what happened.
+
+```python
+optimized.dg.report
+```
+
+Example:
+
+```python
+{
+    "clean": {
+        "EmptyRowsPlugin":
+            "Number of deleted rows: 15",
+
+        "EmptyColumnsPlugin":
+            "Number of deleted columns: 2",
+
+        "DropDuplicates":
+            "Number of deleted rows: 31"
+    },
+
+    "optimize": {
+        "BooleanTypePlugin":
+            ["active"],
+
+        "DateTimeTypePlugin":
+            ["created_at"],
+
+        "NumericTypePlugin":
+            ["price"],
+
+        "CategoryTypePlugin":
+            ["country"]
+    }
+}
+```
+
+---
+
+# Installation
 
 ```bash
 pip install danda
 ```
 
-## Usage
+---
+
+# Quick Start
 
 ```python
 import pandas as pd
@@ -45,54 +218,88 @@ import danda
 
 df = pd.read_csv("employees.csv")
 
-clean_df = df.dg.clean()
+clean = df.dg.clean()
+
+optimized = clean.dg.optimize()
+
+print(optimized.dg.report)
+
+print(clean.dg.compare_memory(optimized))
 ```
 
-## What happens automatically
-* Remove empty rows
-* Remove empty columns
-* Strip whitespace [" John ", " John", "John "] -> John
-* Normalize missing values ["", " ", "N/A", "NULL", "None", "-"] -> Nan
-* Detect dates 2025-01-01->datetime64[ns]
-* Detect booleans [Yes , No , TRUE , FALSE ,0, 1] -> bool
-* Detect categorical columns unique values < 20 or unique ratio < 15%
-* Optimize integer types int64 -> int8
-* Detect IDs: do not do these [CustomerID , ZipCode , PostalCode, Phone]
-* Memory optimization: Show users the improvement. Memory before : 95 MB, Memory after  : 21 MB, Reduction     : 77.9%
-* Cleaning report: 
+---
 
-## Features
-* Validation: WARNING Column Age: 12 invalid values , converted to NaN
-* Profiling: Rows 145,000 Columns 24 Missing 3.2% Duplicates 512 Memory 18 MB Categorical 7 Numeric 10 Datetime 3
-* suggestions: Suggestions CustomerID Looks like an ID column. Convert to string? [Y/n]
-* Plugin system
-```
-dg.read_csv(
-    "sales.csv",
-    plugins=[
-        dg.TrimWhitespace(),
-        dg.ParseDates(),
-        dg.RemoveDuplicates(),
-        dg.NormalizeMissing(),
-    ],
-)
-```
-* Pandas accessor
+# Pandas Accessor
 
-```
-import pandas as pd
-import dataforge
+`danda` integrates directly into pandas using a custom accessor.
 
-df = pd.read_csv("sales.csv")
-
+```python
 df.dg.clean()
-
-df.dg.profile()
 
 df.dg.optimize()
 
-df.dg.report()
+df.dg.report
+
+df.dg.compare_memory(other_df)
 ```
+
+No new DataFrame class.
+No wrapper objects.
+
+Just pandas.
+
+---
+
+# Philosophy
+
+`danda` follows a simple principle:
+
+> **Prepare data for analysis automatically while preserving the familiar pandas workflow.**
+
+The library is designed to feel like a natural extension of pandas rather than a replacement.
+
+---
+
+# Roadmap
+
+Planned features include:
+
+- Read functions (`danda.read_csv()`, `read_excel()`, `read_parquet()`)
+- Missing value normalization
+- Integer downcasting
+- Float optimization
+- Automatic ID detection
+- Data validation
+- Dataset profiling
+- Configurable plugin pipeline
+- Custom plugins
+
+---
+
+# Plugin Architecture
+
+`danda` is built around a plugin system.
+
+Current plugins include:
+
+- EmptyRowsPlugin
+- EmptyColumnsPlugin
+- DropDuplicatesPlugin
+- EmptySpacesPlugin
+- BooleanTypePlugin
+- DateTimeTypePlugin
+- NumericTypePlugin
+- CategoryTypePlugin
+
+Creating your own plugins is straightforward, allowing you to customize the cleaning pipeline for your own datasets.
+
+---
+
+# Contributing
+
+Contributions, feature requests, and bug reports are welcome!
+
+If you have an idea that makes data cleaning easier, feel free to open an issue or submit a pull request.
 
 #### Normalize missing values
 

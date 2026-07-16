@@ -1,7 +1,6 @@
 import unittest
 import pandas as pd
-import danda
-
+import danda # noqa: F401  # registers the pandas accessor
 
 class AccessorTestCase(unittest.TestCase):
 
