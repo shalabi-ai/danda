@@ -68,3 +68,10 @@ class CategoryTypePlugin(TypePlugin):
                 "Converted the following columns to category: "
                 + ", ".join(data)
         )
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.category_enabled,
+            "threshold": config.category_threshold
+        }

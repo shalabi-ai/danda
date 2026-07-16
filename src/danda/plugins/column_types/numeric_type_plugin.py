@@ -68,3 +68,11 @@ class NumericTypePlugin(TypePlugin):
                 "Converted the following columns to numeric: "
                 + ", ".join(data)
         )
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.numeric_enabled,
+            "threshold": config.numeric_threshold
+        }
+

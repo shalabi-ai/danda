@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 import pandas as pd
 from typing import final
+from danda.configuration.danda_configuration import DandaConfig
 from danda.plugins.report_collector import ReportCollector
 
 
@@ -14,6 +15,10 @@ class Plugin(ABC):
 
     @final
     def run(self, df: pd.DataFrame, report: ReportCollector | None = None,) -> pd.DataFrame:
+        params = self._get_config_params(df)
+        if not params.get("enabled", True):
+            return df
+
         if report is None:
             report = self.report_collector
 
@@ -49,3 +54,10 @@ class Plugin(ABC):
     @abstractmethod
     def _report(self, data, report: ReportCollector):
         pass
+
+    @abstractmethod
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        pass
+
+    def _get_config(self, df: pd.DataFrame) -> DandaConfig:
+        return df.dg.config

@@ -74,3 +74,10 @@ class DateTimeTypePlugin(TypePlugin):
                 "Converted the following columns to datetime: "
                 + ", ".join(data)
         )
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.datetime_enabled,
+            "threshold": config.datetime_threshold
+        }

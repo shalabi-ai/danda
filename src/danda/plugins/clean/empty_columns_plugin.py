@@ -17,3 +17,9 @@ class EmptyColumnsPlugin(CleanPlugin):
     def _report(self, data, report: ReportCollector) -> str:
         return f'Number of deleted columns: {data}'
 
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).cleaning
+        return {
+            "enabled": config.remove_empty_columns
+        }
+

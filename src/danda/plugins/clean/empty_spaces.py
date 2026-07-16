@@ -31,3 +31,9 @@ class EmptySpacesPlugin(CleanPlugin):
             return "No leading or trailing whitespace found."
 
         return f"Stripped leading/trailing whitespace from columns: {', '.join(data)}"
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).cleaning
+        return {
+            "enabled": config.strip_whitespace
+        }
