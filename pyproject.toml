@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "danda"
-version = "0.1.2a1"
+version = "0.1.2a2"
 description = "Automatically prepare pandas DataFrames for analysis."
 readme = "README.md"
 requires-python = ">=3.10"

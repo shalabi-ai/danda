@@ -1,4 +1,5 @@
 import pandas as pd
+from danda.configuration.danda_configuration import DandaConfig
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
 from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin
@@ -75,3 +76,10 @@ class DandaAccessor:
 
     def compare_memory(self, other: pd.DataFrame) -> dict:
         return DataFrameInformation.evaluate_memory_usage(self._df, other)
+
+    @property
+    def config(self) -> DandaConfig:
+        if "danda_config" not in self._df.attrs:
+            self._df.attrs["danda_config"] = DandaConfig()
+
+        return self._df.attrs["danda_config"]
