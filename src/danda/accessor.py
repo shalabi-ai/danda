@@ -1,5 +1,6 @@
 import pandas as pd
 from danda.configuration.danda_configuration import DandaConfig
+from danda.plugins.analysis.missing_values_report_plugin import MissingValuesReportPlugin
 from danda.plugins.analysis.potential_missing_values_plugin import PotentialMissingValuesPlugin
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
@@ -70,6 +71,7 @@ class DandaAccessor:
         plugins = [
             PotentialBooleanTypePlugin(report_collector),
             PotentialMissingValuesPlugin(report_collector),
+            MissingValuesReportPlugin(report_collector),
             #PotentialDateTimeTypePlugin(report_collector),
             #PotentialCategoryTypePlugin(report_collector),
             #PotentialMissingValuesPlugin(report_collector),

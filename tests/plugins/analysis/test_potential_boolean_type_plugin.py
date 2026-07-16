@@ -23,7 +23,7 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
         expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'A': ['y', 'n'], 'B': [1, 2]}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - A: ['y', 'n']\n - B: [np.int64(1), np.int64(2)]"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - A: ['y', 'n']\n - B: [np.int64(1), np.int64(2)]"}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_find_potential_boolean_columns(self):
@@ -44,7 +44,7 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
         expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'active': ['y', 'n'], 'gender': ['m', 'f'], 'status': ['open', 'closed']}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - gender: ['m', 'f']\n - active: ['y', 'n']\n - status: ['open', 'closed']"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - gender: ['m', 'f']\n - active: ['y', 'n']\n - status: ['open', 'closed']"}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_ignore_case_space(self):
@@ -57,7 +57,7 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
         expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'color': ['red', 'blue']}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - color: ['red', 'blue']"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - color: ['red', 'blue']"}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_ignore_columns_with_more_than_two_unique_values(self):
@@ -111,7 +111,7 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
         expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'approved': ['yes', 'no']}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - approved: ['yes', 'no']"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - approved: ['yes', 'no']"}}
         self.assertEqual(expected_report, self.report.report)
 
 

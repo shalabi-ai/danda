@@ -54,7 +54,7 @@ class PotentialBooleanTypePlugin(AnalysisPlugin):
         if not data:
             return "No potential boolean columns found."
 
-        lines = ["Potential boolean columns detected:"]
+        lines = ["Columns that may represent boolean values:"]
 
         for column, values in data.items():
             lines.append(f" - {column}: {values}")
