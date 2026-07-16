@@ -39,7 +39,7 @@ class DateTimeTypePlugin(TypePlugin):
             if non_null.empty:
                 continue
 
-            parsed = pd.to_datetime(non_null, errors="coerce")
+            parsed = pd.to_datetime(non_null, errors="coerce", format="mixed",)
 
             success_rate = parsed.notna().mean()
 
@@ -54,7 +54,7 @@ class DateTimeTypePlugin(TypePlugin):
         columns = self._find_datetime_columns(df)
 
         for column in columns:
-            result[column] = pd.to_datetime(result[column], errors="coerce")
+            result[column] = pd.to_datetime(result[column], errors="coerce", format="mixed",)
 
         return result
 

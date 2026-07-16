@@ -1,5 +1,6 @@
 from collections.abc import Sequence
 import pandas as pd
+from danda.plugins.optimization.information import DataFrameInformation
 from danda.plugins.plugin import Plugin
 from danda.plugins.report_collector import ReportCollector
 
@@ -35,6 +36,7 @@ class ChainPlugin(Plugin):
         return {
             "plugins_count": data["plugins_count"],
             "plugin_names": data["plugin_names"],
+            "memory_usage": data["memory_usage"],
            # "result": deepcopy(self.chain_collector.report),
         }
 
@@ -42,5 +44,6 @@ class ChainPlugin(Plugin):
         return {
             "plugins_count": len(self._plugins),
             "plugin_names": [p.plugin_name for p in self._plugins],
+            "memory_usage": DataFrameInformation.evaluate_memory_usage(before, after)
             #"result": deepcopy(self.chain_collector.data),
         }
