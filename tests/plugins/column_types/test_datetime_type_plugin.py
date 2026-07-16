@@ -5,6 +5,7 @@ from danda.plugins.column_types.datetime_type_plugin import DateTimeTypePlugin
 from danda.plugins.report_collector import ReportCollector
 from pandas.testing import assert_frame_equal
 from pandas.api.types import is_datetime64_any_dtype
+import danda # noqa: F401  # registers the pandas accessor
 
 class TestDateTimeTypePlugin(unittest.TestCase):
 
@@ -171,6 +172,26 @@ class TestDateTimeTypePlugin(unittest.TestCase):
 
         expected_report = {'types': {'DateTimeTypePlugin': 'Converted the following columns to datetime: created'}}
         self.assertEqual(expected_report, self.report.report)
+
+    def test_threshold(self):
+        df = pd.DataFrame({
+            "dates": [
+                "2024-01-01",
+                "not a date",
+                "2024-01-03",
+                "2024-01-04"
+            ]
+        })
+
+        result = self.plugin.run(df)
+        dtype = result["dates"].dtype
+        self.assertEqual(dtype.name, "str")
+
+
+        df.dg.config.types.datetime_threshold = 0.75
+        result = self.plugin.run(df)
+        dtype = result["dates"].dtype
+        self.assertEqual(dtype.name, "datetime64[us]")
 
     def test_success_threshold(self):
         df = pd.DataFrame({

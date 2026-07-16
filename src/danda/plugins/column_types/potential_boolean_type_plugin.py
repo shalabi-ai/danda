@@ -52,3 +52,9 @@ class PotentialBooleanTypePlugin(TypePlugin):
             lines.append(f" - {column}: {values}")
 
         return "\n".join(lines)
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.potential_boolean_enabled,
+        }

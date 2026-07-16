@@ -20,3 +20,8 @@ class ExceptionPlugin(Plugin):
 
     def _report(self, data, report: ReportCollector) -> str:
         return ""
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        return {
+            "enabled" : True
+        }

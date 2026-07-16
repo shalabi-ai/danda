@@ -3,6 +3,8 @@ import pandas as pd
 
 from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
 from danda.plugins.report_collector import ReportCollector
+import danda  # noqa: F401  # registers the pandas accessor
+from pandas._testing import assert_frame_equal
 
 
 class TestDropDuplicates(unittest.TestCase):
@@ -24,7 +26,7 @@ class TestDropDuplicates(unittest.TestCase):
             "B": ["a", "b", "c"],
         }, index=[0, 1, 3])
 
-        pd.testing.assert_frame_equal(result, expected)
+        assert_frame_equal(result, expected)
 
     def test_report_data(self):
         df = pd.DataFrame({
@@ -76,6 +78,30 @@ class TestDropDuplicates(unittest.TestCase):
                 }
             },
         )
+
+    def test_ignore_index_true(self):
+        df = pd.DataFrame(
+            {
+                "A": [1, 1, 2],
+                "B": ["x", "x", "y"],
+            },
+            index=[10, 20, 30],
+        )
+
+        df.dg.config.cleaning.remove_duplicates_ignore_index = True
+
+        plugin = DropDuplicatesPlugin(ReportCollector())
+        result = plugin.run(df)
+
+        expected = pd.DataFrame(
+            {
+                "A": [1, 2],
+                "B": ["x", "y"],
+            }
+        )
+
+        assert_frame_equal(result, expected)
+        self.assertEqual(list(result.index), [0, 1])
 
 
 if __name__ == "__main__":

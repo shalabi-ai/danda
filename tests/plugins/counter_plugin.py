@@ -23,3 +23,8 @@ class CounterPlugin(Plugin):
 
     def get_count(self)->int:
         return self._counter
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        return {
+            "enabled" : True
+        }

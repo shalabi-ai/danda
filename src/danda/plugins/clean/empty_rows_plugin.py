@@ -15,3 +15,9 @@ class EmptyRowsPlugin(CleanPlugin):
 
     def _get_report_data(self, before: pd.DataFrame, after: pd.DataFrame, report: ReportCollector):
         return before.index.size - after.index.size
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).cleaning
+        return {
+            "enabled": config.remove_empty_rows
+        }

@@ -47,3 +47,8 @@ class ChainPlugin(Plugin):
             "memory_usage": DataFrameInformation.evaluate_memory_usage(before, after)
             #"result": deepcopy(self.chain_collector.data),
         }
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        return {
+            "enabled" : True
+        }

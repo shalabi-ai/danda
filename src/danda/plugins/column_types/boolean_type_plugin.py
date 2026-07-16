@@ -49,3 +49,10 @@ class BooleanTypePlugin(TypePlugin):
         if len(data) == 0:
             return "no columns converted"
         return f"convert these columns to boolean {', '.join(data)}"
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.boolean_enabled,
+            #"threshold": config.boolean_threshold
+        }

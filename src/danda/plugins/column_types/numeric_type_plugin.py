@@ -2,7 +2,6 @@ import pandas as pd
 from danda.plugins.column_types.type_plugin import TypePlugin
 from danda.plugins.report_collector import ReportCollector
 
-
 class NumericTypePlugin(TypePlugin):
     """
     Convert string columns containing numeric values to numeric dtype.
@@ -14,7 +13,7 @@ class NumericTypePlugin(TypePlugin):
     @staticmethod
     def _find_numeric_columns(
             df: pd.DataFrame,
-            success_threshold: float = 0.9,
+            success_threshold: float = 1.0,
     ) -> list[str]:
         """
         Find object/string columns that can be converted to numeric.
@@ -43,9 +42,12 @@ class NumericTypePlugin(TypePlugin):
         return numeric_columns
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        config = self._get_config_params(df)
+        threshold = config.get("threshold")
+
         result = df.copy()
 
-        columns = self._find_numeric_columns(df)
+        columns = self._find_numeric_columns(df, threshold)
 
         for column in columns:
             result[column] = pd.to_numeric(result[column], errors="coerce")
@@ -68,3 +70,11 @@ class NumericTypePlugin(TypePlugin):
                 "Converted the following columns to numeric: "
                 + ", ".join(data)
         )
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).types
+        return {
+            "enabled": config.numeric_enabled,
+            "threshold": config.numeric_threshold
+        }
+
