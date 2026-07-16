@@ -4,6 +4,8 @@
 > 
 > **Automatically clean and optimize pandas DataFrames with one line of code.**
 
+`danda` prepares DataFrames for analysis by performing safe, deterministic cleaning, type inference, and memory optimization while preserving the meaning of the data.
+
 `danda` is a lightweight extension for pandas that prepares messy data for analysis by automatically cleaning, converting data types, and reducing memory usage.
 
 Instead of writing dozens of lines of preprocessing code, simply do:

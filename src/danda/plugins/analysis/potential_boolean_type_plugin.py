@@ -1,9 +1,12 @@
 import pandas as pd
-from danda.plugins.column_types.type_plugin import TypePlugin
+from danda.plugins.analysis.analysis_plugin import AnalysisPlugin
 from danda.plugins.report_collector import ReportCollector
+from pandas.api.types import (
+    is_object_dtype,
+    is_string_dtype,
+)
 
-
-class PotentialBooleanTypePlugin(TypePlugin):
+class PotentialBooleanTypePlugin(AnalysisPlugin):
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("PotentialBooleanTypePlugin", report)
 
@@ -14,7 +17,12 @@ class PotentialBooleanTypePlugin(TypePlugin):
         candidates = {}
 
         for column in df.columns:
-            values = df[column].dropna().unique()
+            series = df[column].dropna()
+
+            if is_string_dtype(series) or is_object_dtype(series):
+                values = series.astype(str).str.strip().str.lower().unique()
+            else:
+                values = series.unique()
 
             # Exactly two distinct values
             if len(values) != 2:
