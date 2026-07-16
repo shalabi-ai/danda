@@ -90,3 +90,16 @@ class TypeConfig(ConfigSection):
             "feature": "Category Detection",
         },
     )
+
+    potential_boolean_enabled: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Enable detection of potential boolean columns. These are "
+                "columns with exactly two unique non-null values that are "
+                "not recognized as standard boolean representations "
+                "(e.g. 'Male'/'Female', 'Y'/'N', 'Pass'/'Fail')."
+            ),
+            "feature": "Potential Boolean Detection",
+        },
+    )

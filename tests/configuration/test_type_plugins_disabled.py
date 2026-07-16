@@ -1,7 +1,6 @@
 import unittest
 
 import pandas as pd
-from danda.configuration.danda_configuration import DandaConfig
 from danda.plugins.column_types.boolean_type_plugin import BooleanTypePlugin
 from danda.plugins.column_types.category_type_plugin import CategoryTypePlugin
 from danda.plugins.column_types.datetime_type_plugin import DateTimeTypePlugin
