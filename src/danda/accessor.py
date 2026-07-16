@@ -8,6 +8,8 @@ from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin
 from danda.plugins.clean.empty_rows_plugin import EmptyRowsPlugin
 from danda.plugins.clean.empty_spaces import EmptySpacesPlugin
 from danda.plugins.clean.normalize_missing_values_plugin import NormalizeMissingValuesPlugin
+from danda.plugins.clean.sparse_columns_plugin import SparseColumnsPlugin
+from danda.plugins.clean.sparse_rows_plugin import SparseRowsPlugin
 from danda.plugins.column_types.boolean_type_plugin import BooleanTypePlugin
 from danda.plugins.column_types.category_type_plugin import CategoryTypePlugin
 from danda.plugins.column_types.datetime_type_plugin import DateTimeTypePlugin
@@ -35,6 +37,8 @@ class DandaAccessor:
         plugins = [
             EmptySpacesPlugin(report_collector),
             NormalizeMissingValuesPlugin(report_collector),
+            SparseColumnsPlugin(report_collector),
+            SparseRowsPlugin(report_collector),
             EmptyRowsPlugin(report_collector),
             EmptyColumnsPlugin(report_collector),
             DropDuplicatesPlugin(report_collector),
