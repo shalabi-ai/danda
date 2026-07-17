@@ -91,7 +91,7 @@ missing.drop_sparse_columns = True
 
 missing.column_threshold = 0.95
 
-## Fill missing values (future)
+## Fill missing values 
 
 Probably a separate plugin.
 

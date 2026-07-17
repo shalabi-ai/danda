@@ -3,6 +3,10 @@ import pandas as pd
 from danda.plugins.column_types.column_type_identification import ColumnTypeIdentification
 from danda.plugins.column_types.type_plugin import TypePlugin
 from danda.plugins.report_collector import ReportCollector
+from pandas.api.types import (
+    is_string_dtype,
+    is_object_dtype
+)
 
 
 class BooleanTypePlugin(TypePlugin):
@@ -33,6 +37,9 @@ class BooleanTypePlugin(TypePlugin):
         columns = ColumnTypeIdentification.boolean_columns(df)
         result = df.copy()
         for column in columns:
+            if is_string_dtype(result[column]) or is_object_dtype(result[column]):
+                result[column] = result[column].str.lower()
+
             result[column] = (
                 result[column]
                 .replace(mapping) #.map(lambda x: self._mapping.get(x, x) if pd.notna(x) else x)

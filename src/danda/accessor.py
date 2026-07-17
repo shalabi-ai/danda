@@ -16,6 +16,7 @@ from danda.plugins.column_types.category_type_plugin import CategoryTypePlugin
 from danda.plugins.column_types.datetime_type_plugin import DateTimeTypePlugin
 from danda.plugins.column_types.numeric_type_plugin import NumericTypePlugin
 from danda.plugins.analysis.potential_boolean_type_plugin import PotentialBooleanTypePlugin
+from danda.plugins.imputation.impute_missing_values_plugin import ImputeMissingValuesPlugin
 from danda.plugins.optimization.information import DataFrameInformation
 from danda.plugins.report_collector import ReportCollector
 
@@ -94,6 +95,21 @@ class DandaAccessor:
 
         return result
 
+    def impute(self):
+        report_collector = ReportCollector()
+        plugins = [
+            ImputeMissingValuesPlugin(report_collector)
+        ]
+
+        chain_plugin = ChainPlugin(plugins, report_collector)
+        result = chain_plugin.run(self._df)
+
+        # Preserve existing attrs
+        result.attrs.update(self._df.attrs)
+        result.attrs["danda_impute_report"] = report_collector.report
+
+        return result
+
     @property
     def report(self):
         reports = {}
@@ -106,6 +122,9 @@ class DandaAccessor:
 
         if "danda_analyze_report" in self._df.attrs:
             reports["analyze"] = self._df.attrs["danda_analyze_report"]
+
+        if "danda_impute_report" in self._df.attrs:
+            reports["impute"] = self._df.attrs["danda_impute_report"]
 
         return reports
 

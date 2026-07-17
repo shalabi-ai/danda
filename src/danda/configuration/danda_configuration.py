@@ -3,6 +3,7 @@ from danda.configuration.clean_configuration import CleaningConfig
 from danda.configuration.config_section import ConfigSection
 from dataclasses import dataclass, field
 
+from danda.configuration.imputation_config import ImputationConfig
 from danda.configuration.missing_values_config import MissingValuesConfig
 from danda.configuration.type_configuration import TypeConfig
 
@@ -13,6 +14,7 @@ class DandaConfig(ConfigSection):
     types: TypeConfig = field(default_factory=TypeConfig)
     missing: MissingValuesConfig = field(default_factory=MissingValuesConfig)
     analysis: AnalysisConfig = field(default_factory=AnalysisConfig)
+    imputation: ImputationConfig = field(default_factory=ImputationConfig)
 
     def show(self) -> str:
         return "\n\n".join([
