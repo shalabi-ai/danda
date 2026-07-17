@@ -3,13 +3,16 @@ import pandas as pd
 from danda.plugins.analysis.analysis_plugin import AnalysisPlugin
 from danda.plugins.report_collector import ReportCollector
 
-
 class PotentialMissingValuesPlugin(AnalysisPlugin):
 
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("PotentialMissingValuesPlugin", report)
 
-    def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+    def _execute(
+            self,
+            df: pd.DataFrame,
+            report: ReportCollector,
+    ) -> pd.DataFrame:
         # Analysis plugins never modify the dataframe.
         return df
 
@@ -21,10 +24,19 @@ class PotentialMissingValuesPlugin(AnalysisPlugin):
     ) -> dict[str, dict[str, int]]:
         config = self._get_config_params(before)
 
-        values = set(config["values"])
+        # Build lookup: normalized configured value -> canonical configured value
+        lookup = {}
 
-        if config["ignore_case"]:
-            values = {v.lower() for v in values}
+        for value in config["values"]:
+            candidate = value
+
+            if config["strip_whitespace"]:
+                candidate = candidate.strip()
+
+            if config["ignore_case"]:
+                candidate = candidate.lower()
+
+            lookup[candidate] = value
 
         result = {}
 
@@ -48,8 +60,8 @@ class PotentialMissingValuesPlugin(AnalysisPlugin):
                 if config["ignore_case"]:
                     candidate = candidate.lower()
 
-                if candidate in values:
-                    counter[value] += 1
+                if candidate in lookup:
+                    counter[lookup[candidate]] += 1
 
             if counter:
                 result[column] = dict(counter)

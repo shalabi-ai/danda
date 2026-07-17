@@ -18,12 +18,9 @@ class AnalysisConfig(ConfigSection):
         default=(
             "n/a",
             "na",
-            "unknown",
             "?",
             "-",
             "--",
-            "missing",
-            "tbd",
         ),
         metadata={
             "description": (
@@ -52,5 +49,60 @@ class AnalysisConfig(ConfigSection):
                 "letter casing."
             ),
             "feature": "Potential Missing Value Detection",
+        },
+    )
+
+    suspicious_missing_enabled: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Detect values that are commonly used as "
+                "sentinel values for missing data."
+            ),
+            "feature": "Suspicious Missing Values",
+        },
+    )
+
+    suspicious_missing_values: tuple = field(
+        default=(
+            -9999,
+            -999,
+            999,
+            9999,
+            99999,
+            2147483647,
+            -1,
+            "UNKNOWN",
+            "MISSING",
+            "TBD",
+            "TBA",
+            "PENDING",
+        ),
+        metadata={
+            "description": (
+                "Values to report as suspicious missing values."
+            ),
+            "feature": "Suspicious Missing Values",
+        },
+    )
+
+    suspicious_missing_ignore_case: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Compare string sentinel values without considering case."
+            ),
+            "feature": "Suspicious Missing Values",
+        },
+    )
+
+    suspicious_missing_strip_whitespace: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Strip leading and trailing whitespace from string values "
+                "before checking whether they match suspicious missing values."
+            ),
+            "feature": "Suspicious Missing Values",
         },
     )

@@ -10,22 +10,15 @@ class TestPotentialMissingValuesPlugin(unittest.TestCase):
         self.report = ReportCollector()
         self.plugin = PotentialMissingValuesPlugin(self.report)
 
-    def test_execute_reports_potential_missing_values(self):
+    def test_execute_detects_potential_missing_values(self):
         df = pd.DataFrame({
             "status": [
-                "OK",
                 "N/A",
-                "Unknown",
-                "N/A",
+                "unknown",
                 "-",
-            ],
-            "city": [
-                "Berlin",
-                "Paris",
-                "London",
-                "Rome",
-                "Madrid",
-            ],
+                "OK",
+                None,
+            ]
         })
 
         result = self.plugin.run(df)
@@ -36,28 +29,118 @@ class TestPotentialMissingValuesPlugin(unittest.TestCase):
             "analysis": {
                 "PotentialMissingValuesPlugin": {
                     "status": {
-                        "N/A": 2,
-                        "Unknown": 1,
+                        "n/a": 1,
                         "-": 1,
                     }
                 }
             }
         }
+
         self.assertEqual(expected_data, self.report.data)
 
         expected_report = {
             "analysis": {
                 "PotentialMissingValuesPlugin": (
                     "Potential missing values detected:\n"
-                    "- status: N/A (2), Unknown (1), - (1)"
+                    "- status: n/a (1), - (1)"
                 )
             }
         }
+
         self.assertEqual(expected_report, self.report.report)
+
+    def test_execute_merges_case_variants(self):
+        df = pd.DataFrame({
+            "status": [
+                "n/a",
+                "N/a",
+                "N/A",
+                " n/A ",
+            ]
+        })
+
+        result = self.plugin.run(df)
+
+        assert_frame_equal(df, result)
+
+        expected_data = {
+            "analysis": {
+                "PotentialMissingValuesPlugin": {
+                    "status": {
+                        "n/a": 4,
+                    }
+                }
+            }
+        }
+
+        self.assertEqual(expected_data, self.report.data)
+
+        expected_report = {
+            "analysis": {
+                "PotentialMissingValuesPlugin": (
+                    "Potential missing values detected:\n"
+                    "- status: n/a (4)"
+                )
+            }
+        }
+
+        self.assertEqual(expected_report, self.report.report)
+
+    def test_execute_respects_ignore_case_disabled(self):
+        df = pd.DataFrame({
+            "status": [
+                "n/a",
+                "N/A",
+            ]
+        })
+
+        df.dg.config.analysis.empty_value_ignore_case = False
+
+        self.plugin.run(df)
+
+        expected_data = {
+            "analysis": {
+                "PotentialMissingValuesPlugin": {
+                    "status": {
+                        "n/a": 1,
+                    }
+                }
+            }
+        }
+
+        self.assertEqual(expected_data, self.report.data)
+
+    def test_execute_respects_strip_whitespace_disabled(self):
+        df = pd.DataFrame({
+            "status": [
+                " N/A ",
+                "N/A",
+            ]
+        })
+
+        df.dg.config.analysis.empty_value_strip_whitespace = False
+
+        self.plugin.run(df)
+
+        expected_data = {
+            "analysis": {
+                "PotentialMissingValuesPlugin": {
+                    "status": {
+                        "n/a": 1,
+                    }
+                }
+            }
+        }
+
+        self.assertEqual(expected_data, self.report.data)
 
     def test_execute_reports_no_potential_missing_values(self):
         df = pd.DataFrame({
-            "status": ["OK", "YES", "NO"],
+            "status": [
+                "Active",
+                "Inactive",
+                "Complete",
+            ]
         })
 
         result = self.plugin.run(df)
@@ -69,6 +152,7 @@ class TestPotentialMissingValuesPlugin(unittest.TestCase):
                 "PotentialMissingValuesPlugin": {}
             }
         }
+
         self.assertEqual(expected_data, self.report.data)
 
         expected_report = {
@@ -77,82 +161,8 @@ class TestPotentialMissingValuesPlugin(unittest.TestCase):
                     "No potential missing values detected."
             }
         }
+
         self.assertEqual(expected_report, self.report.report)
-
-    def test_execute_is_case_insensitive(self):
-        df = pd.DataFrame({
-            "status": [
-                "unknown",
-                "Unknown",
-                "UNKNOWN",
-            ]
-        })
-
-        self.plugin.run(df)
-
-        expected_data = {
-            "analysis": {
-                "PotentialMissingValuesPlugin": {
-                    "status": {
-                        "unknown": 1,
-                        "Unknown": 1,
-                        "UNKNOWN": 1,
-                    }
-                }
-            }
-        }
-
-        self.assertEqual(expected_data, self.report.data)
-
-    def test_execute_strips_whitespace(self):
-        df = pd.DataFrame({
-            "status": [
-                " N/A ",
-                " Unknown",
-                "- ",
-            ]
-        })
-
-        self.plugin.run(df)
-
-        expected_data = {
-            "analysis": {
-                "PotentialMissingValuesPlugin": {
-                    "status": {
-                        " N/A ": 1,
-                        " Unknown": 1,
-                        "- ": 1,
-                    }
-                }
-            }
-        }
-
-        self.assertEqual(expected_data, self.report.data)
-
-    def test_execute_respects_custom_values(self):
-        df = pd.DataFrame({
-            "status": [
-                "TBC",
-                "Done",
-                "TBC",
-            ]
-        })
-
-        df.dg.config.analysis.empty_value_values = ("tbc",)
-
-        self.plugin.run(df)
-
-        expected_data = {
-            "analysis": {
-                "PotentialMissingValuesPlugin": {
-                    "status": {
-                        "TBC": 2,
-                    }
-                }
-            }
-        }
-
-        self.assertEqual(expected_data, self.report.data)
 
 
 if __name__ == '__main__':

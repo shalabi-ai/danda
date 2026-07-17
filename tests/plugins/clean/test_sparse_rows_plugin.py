@@ -24,19 +24,7 @@ class TestSparseRowsPlugin(unittest.TestCase):
         df.dg.config.cleaning.sparse_rows_enabled = True
         df.dg.config.cleaning.sparse_rows_threshold = 0.8
 
-        result = self.plugin.run(df)
-
-        expected = pd.DataFrame({
-            "A": [1],
-            "B": [2],
-            "C": [3],
-            "D": [4],
-            "E": [5],
-        })
-
-
-        #assert_frame_equal(expected.reset_index(drop=True),
-         #                  result.reset_index(drop=True))
+        self.plugin.run(df)
 
         expected_data = {
             "clean": {
