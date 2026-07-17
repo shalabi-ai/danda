@@ -321,6 +321,64 @@ Filled missing values:
 
 For a complete description of the available strategies, configuration options, and implementation details, see **[Imputation Guide](docs/imputation.md)**.
 
+---
+
+## Danda Accessor
+
+Danda extends pandas with the `.dg` accessor, providing a simple and consistent API for cleaning, analyzing, optimizing, and transforming DataFrames.
+
+Instead of calling multiple pandas functions, you can perform common data preparation tasks directly from your DataFrame.
+
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("titanic.csv")
+
+df = (
+    df
+    .dg.clean()
+    .dg.optimize()
+    .dg.analyse()
+)
+```
+
+The accessor groups functionality into logical categories:
+
+| Category | Description |
+|----------|-------------|
+| **Cleaning** | Remove duplicates, normalize missing values, trim whitespace, remove sparse or empty rows and columns, and other data cleaning operations. |
+| **Analysis** | Generate data quality reports, detect missing values, identify suspicious values, find binary columns, and profile dataset quality without modifying the data. |
+| **Optimization** | Reduce memory usage by converting data types such as boolean, category, numeric, and datetime where appropriate. |
+| **Imputation** | Fill missing values using configurable strategies such as median, mode, forward fill, backward fill, or constant values. |
+
+Each operation preserves the DataFrame interface and can be chained naturally.
+
+```python
+df = (
+    pd.read_csv("customers.csv")
+      .dg.clean()
+      .dg.impute_missing_values()
+      .dg.optimize()
+      .dg.analyse()
+)
+```
+
+### Reports
+
+Many accessor methods generate detailed reports describing the actions performed or issues detected.
+
+```python
+df = df.dg.clean().dg.analyse()
+
+print(df.dg.report())
+```
+
+### Learn More
+
+For a complete reference of every accessor method, configuration option, and usage example, see:
+
+- **[Accessor Reference](docs/danda_accessor.md)**
 
 ---
 
