@@ -14,7 +14,7 @@ class TestBooleanTypePlugin(unittest.TestCase):
 
     def test_convert_boolean_columns(self):
         df = pd.DataFrame({
-            "bool_str": ["True", "False", "True"],
+            "bool_str": ["True", "False", "TRUE"],
             "bool_int": [1, 0, 1],
             "number": [10, 20, 30]
         })

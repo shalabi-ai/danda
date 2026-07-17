@@ -6,6 +6,9 @@ __all__ = [
     "read_csv",
     "read_excel",
     "DandaAccessor",
+    "clean",
+   # "optimize",
+   # "report",
 ]
 
 clean_plugin = "clean"

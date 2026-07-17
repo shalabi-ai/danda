@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from danda.plugins.column_types.potential_boolean_type_plugin import PotentialBooleanTypePlugin
+from danda.plugins.analysis.potential_boolean_type_plugin import PotentialBooleanTypePlugin
 from danda.plugins.report_collector import ReportCollector
 from pandas.testing import assert_frame_equal
 
@@ -20,10 +20,10 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         assert_frame_equal(result, df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {'A': ['Y', 'N'], 'B': [1, 2]}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'A': ['y', 'n'], 'B': [1, 2]}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - A: ['Y', 'N']\n - B: [np.int64(1), np.int64(2)]"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - A: ['y', 'n']\n - B: [np.int64(1), np.int64(2)]"}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_find_potential_boolean_columns(self):
@@ -41,10 +41,23 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         assert_frame_equal(result, df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {'active': ['Y', 'N'], 'gender': ['M', 'F'], 'status': ['Open', 'Closed']}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'active': ['y', 'n'], 'gender': ['m', 'f'], 'status': ['open', 'closed']}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - gender: ['M', 'F']\n - active: ['Y', 'N']\n - status: ['Open', 'Closed']"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - gender: ['m', 'f']\n - active: ['y', 'n']\n - status: ['open', 'closed']"}}
+        self.assertEqual(expected_report, self.report.report)
+
+    def test_ignore_case_space(self):
+        df = pd.DataFrame({
+            "color": ["Red", "Blue", "BLUE", "red", "  red", "red   ", "   ReD   "]
+        })
+
+        self.plugin.run(df)
+
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'color': ['red', 'blue']}}}
+        self.assertEqual(expected_data, self.report.data)
+
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - color: ['red', 'blue']"}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_ignore_columns_with_more_than_two_unique_values(self):
@@ -54,10 +67,10 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_ignore_existing_boolean_columns(self):
@@ -69,10 +82,10 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_ignore_single_unique_value(self):
@@ -82,10 +95,10 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': 'No potential boolean columns found.'}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_handles_missing_values(self):
@@ -95,10 +108,10 @@ class TestPotentialBooleanTypePlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        expected_data = {'types': {'PotentialBooleanTypePlugin': {'approved': ['Yes', 'No']}}}
+        expected_data = {'analysis': {'PotentialBooleanTypePlugin': {'approved': ['yes', 'no']}}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'PotentialBooleanTypePlugin': "Potential boolean columns detected:\n - approved: ['Yes', 'No']"}}
+        expected_report = {'analysis': {'PotentialBooleanTypePlugin': "Columns that may represent boolean values:\n - approved: ['yes', 'no']"}}
         self.assertEqual(expected_report, self.report.report)
 
 

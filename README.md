@@ -4,6 +4,8 @@
 > 
 > **Automatically clean and optimize pandas DataFrames with one line of code.**
 
+`danda` prepares DataFrames for analysis by performing safe, deterministic cleaning, type inference, and memory optimization while preserving the meaning of the data.
+
 `danda` is a lightweight extension for pandas that prepares messy data for analysis by automatically cleaning, converting data types, and reducing memory usage.
 
 Instead of writing dozens of lines of preprocessing code, simply do:
@@ -251,6 +253,74 @@ numeric_threshold                  : 0.95
 
 For a complete list of configuration options and examples, see the
 **[Configuration Guide](docs/configuration.md)**.
+
+---
+
+## Filling Missing Values
+
+`danda` can automatically fill missing values after your DataFrame has been cleaned and optimized.
+
+Unlike cleaning operations (such as removing empty rows or converting data types), filling missing values **changes the data**. For this reason, imputation is **disabled by default** and must be explicitly enabled.
+
+#### Supported Strategies
+
+By default, `danda` selects a strategy based on the column data type:
+
+| Data Type | Default Strategy |
+| --------- | ---------------- |
+| Numeric   | Median           |
+| Boolean   | Mode             |
+| Category  | Mode             |
+| Text      | Mode             |
+| Datetime  | Forward fill     |
+
+These strategies can be customized through the configuration.
+
+#### Usage
+
+```python
+import danda
+
+df = (
+    pd.read_csv("data.csv")
+      .dg.clean()
+      .dg.optimize()
+      .dg.impute()
+)
+```
+
+Enable imputation:
+
+```python
+df.dg.config.imputation.enabled = True
+```
+
+Customize strategies:
+
+```python
+df.dg.config.imputation.numeric_strategy = "mean"
+df.dg.config.imputation.category_strategy = "constant"
+df.dg.config.imputation.datetime_strategy = "bfill"
+```
+
+#### Report
+
+After imputation, `danda` records which columns were filled and the strategy that was used.
+
+Example:
+
+```text
+Filled missing values:
+- Age: median (12)
+- Salary: mean (4)
+- Country: mode (8)
+- Date: ffill (2)
+```
+
+#### Learn More
+
+For a complete description of the available strategies, configuration options, and implementation details, see **[Imputation Guide](docs/imputation.md)**.
+
 
 ---
 
