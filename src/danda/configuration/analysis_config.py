@@ -106,3 +106,34 @@ class AnalysisConfig(ConfigSection):
             "feature": "Suspicious Missing Values",
         },
     )
+
+    sparse_rows_report_enabled: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Report rows containing a high proportion of missing values."
+            ),
+            "feature": "Sparse Row Reporting",
+        },
+    )
+
+    sparse_rows_report_threshold: float = field(
+        default=0.5,
+        metadata={
+            "description": (
+                "Minimum proportion of missing values required for a row "
+                "to be reported. Values must be between 0.0 and 1.0."
+            ),
+            "feature": "Sparse Row Reporting",
+        },
+    )
+
+    sparse_rows_report_max_rows: int = field(
+        default=20,
+        metadata={
+            "description": (
+                "Maximum number of sparse rows to include in the report."
+            ),
+            "feature": "Sparse Row Reporting",
+        },
+    )

@@ -1,7 +1,9 @@
 import pandas as pd
 from danda.configuration.danda_configuration import DandaConfig
 from danda.plugins.analysis.missing_values_report_plugin import MissingValuesReportPlugin
+from danda.plugins.analysis.missing_values_summary_plugin import MissingValuesSummaryPlugin
 from danda.plugins.analysis.potential_missing_values_plugin import PotentialMissingValuesPlugin
+from danda.plugins.analysis.sparse_rows_report_plugin import SparseRowsReportPlugin
 from danda.plugins.analysis.suspicious_missing_values_plugin import SuspiciousMissingValuesPlugin
 from danda.plugins.chain import ChainPlugin
 from danda.plugins.clean.drop_duplicates import DropDuplicatesPlugin
@@ -75,10 +77,12 @@ class DandaAccessor:
     def analyze(self):
         report_collector = ReportCollector()
         plugins = [
-            PotentialBooleanTypePlugin(report_collector),
-            PotentialMissingValuesPlugin(report_collector),
+            MissingValuesSummaryPlugin(report_collector),
             MissingValuesReportPlugin(report_collector),
+            PotentialMissingValuesPlugin(report_collector),
             SuspiciousMissingValuesPlugin(report_collector),
+            SparseRowsReportPlugin(report_collector),
+            PotentialBooleanTypePlugin(report_collector),
             #PotentialDateTimeTypePlugin(report_collector),
             #PotentialCategoryTypePlugin(report_collector),
             #PotentialMissingValuesPlugin(report_collector),

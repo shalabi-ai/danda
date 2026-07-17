@@ -11,6 +11,129 @@ If I were prioritizing features for danda, I'd implement them in this order:
 
 This progression fits well with danda's philosophy: first make the data clean and correctly typed, then help users decide how to handle missing information, rather than making potentially destructive assumptions automatically.
 
+---
+
+1. Missing value summary ⭐⭐⭐⭐⭐
+
+Instead of only listing columns with missing values, report overall statistics:
+
+Rows:                 15,000
+Columns:                 24
+
+Missing cells:          421 (1.17%)
+Columns with missing:     6
+Complete rows:        14,102
+
+This gives users an immediate overview.
+
+2. Complete-case report ⭐⭐⭐⭐
+
+Report how many rows contain no missing values.
+
+Complete rows: 93.5%
+Incomplete rows: 6.5%
+
+Very common in data quality reports.
+
+3. Rows with many missing values ⭐⭐⭐⭐
+
+Not sparse enough to remove, but worth reporting.
+
+Example:
+
+Rows with >50% missing:
+- Row 124
+- Row 561
+- Row 882
+
+Useful for manual inspection.
+
+4. Missing-value heatmap ⭐⭐⭐
+
+Not as a plugin, but as a visualization:
+
+df.dg.plot_missing()
+
+using matplotlib.
+
+5. Missing-value correlation ⭐⭐⭐
+
+Useful during analysis.
+
+Example:
+
+Salary missing together with Bonus: 96%
+
+This is more exploratory than cleaning, so I'd keep it optional.
+
+6. Consecutive missing values ⭐⭐⭐
+
+For time series:
+
+Temperature
+
+2024-01-01 12
+2024-01-02 NaN
+2024-01-03 NaN
+2024-01-04 NaN
+2024-01-05 14
+
+Report:
+
+Temperature contains a run of 3 consecutive missing values.
+7. Missing-value percentage thresholds ⭐⭐⭐⭐
+
+Highlight columns exceeding a configurable percentage.
+
+Example:
+
+Columns exceeding 30% missing:
+
+Salary      42%
+Address     67%
+
+Often used to decide whether to drop a column.
+
+8. Report constant-value imputations ⭐⭐⭐
+
+When using "constant":
+
+Filled Salary using constant 0.
+Filled Country using "Unknown".
+
+More descriptive than just:
+
+Salary: constant (15)
+9. Missing-value history ⭐⭐
+
+If several plugins modify missing values, the report could summarize:
+
+Normalized:
+24 values
+
+Dropped:
+3 empty rows
+
+Imputed:
+18 values
+
+This provides a nice end-to-end picture of how missing data was handled.
+
+I would stop here
+
+I would not add things like:
+
+KNN imputation
+MICE
+Regression imputation
+Random Forest imputation
+EM algorithm
+
+Those belong in machine learning libraries rather than Danda.
+
+
+
+---
 
 ## Normalize missing values (highest priority)
 Convert all common missing value representations to pd.NA.
