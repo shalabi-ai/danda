@@ -152,13 +152,13 @@ class AnalysisConfig(ConfigSection):
         },
     )
 
-    outlier_method: Literal["iqr", "zscore"] = field(
+    outlier_method: Literal["iqr", "zscore", "modified-zscore"] = field(
         default="iqr",
         metadata={
             "description": (
                 "Statistical method used to identify outliers. "
                 "'iqr' uses the interquartile range, while 'zscore' "
-                "uses the standard score."
+                "uses the standard score. 'modified-zscore' uses median while 'zscore' uses mean"
             ),
             "feature": "Outlier Detection",
         },

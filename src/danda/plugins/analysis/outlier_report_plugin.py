@@ -1,6 +1,8 @@
 from __future__ import annotations
 
+import numpy as np
 import pandas as pd
+import seaborn as sns
 from danda.plugins.analysis.analysis_plugin import AnalysisPlugin
 from danda.plugins.analysis.outlier_detector import OutlierDetector
 from danda.plugins.report_collector import ReportCollector
@@ -16,6 +18,28 @@ class OutlierReportPlugin(AnalysisPlugin):
         report: ReportCollector,
     ) -> pd.DataFrame:
         return df
+
+    def _ascii_boxplot(self, series, width=50) -> str:
+        x = np.asarray(series)
+        q1, med, q3 = np.percentile(x, [25, 50, 75])
+        lo, hi = x.min(), x.max()
+
+        scale = lambda v: int((v - lo) / (hi - lo) * width)
+
+        chars = ["-"] * (width + 1)
+
+        l = scale(q1)
+        m = scale(med)
+        r = scale(q3)
+
+        chars[l] = "|"
+        chars[m] = "|"
+        chars[r] = "|"
+
+        for i in range(l + 1, r):
+            chars[i] = "="
+
+        return "".join(chars)
 
     def _get_report_data(
         self,
@@ -70,6 +94,7 @@ class OutlierReportPlugin(AnalysisPlugin):
                 "high_outliers": upper,
                 "low_outliers": lower,
                 "note_threshold": percent >= note_threshold,
+                "plot": OutlierDetector.outlier_graph(series, method, iqr_multiplier, zscore_threshold)
             }
 
             if include_examples:
@@ -114,8 +139,11 @@ class OutlierReportPlugin(AnalysisPlugin):
                     "Bounds:",
                     f"Lower: {self._fmt(stats['low_outliers'])}",
                     f"Upper: {self._fmt(stats['high_outliers'])}",
+                    "",
+                    #f"{stats['plot']}"
                 ]
             )
+            lines.extend(stats['plot'])
 
             examples = stats.get("examples")
 
