@@ -93,7 +93,7 @@ class OutlierReportPlugin(AnalysisPlugin):
                 "max": outliers.max(),
                 "high_outliers": upper,
                 "low_outliers": lower,
-                "note_threshold": percent >= note_threshold,
+                "note_threshold": rows>=30 and percent >= note_threshold,
                 "plot": OutlierDetector.outlier_graph(series, method, iqr_multiplier, zscore_threshold)
             }
 

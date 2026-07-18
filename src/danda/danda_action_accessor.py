@@ -16,8 +16,8 @@ class DandaActionAccessor:
         self,
         columns: list[str] | None = None,
         *,
-        method: Literal["iqr", "zscore"] = "iqr",
-        strategy: Literal["remove", "nan", "clip"] = "remove",
+        method: Literal["iqr", "zscore", "modified-zscore"] = "modified-zscore",
+        strategy: Literal["remove", "nan", "clip", "mask"] = "remove",
         iqr_multiplier: float = 1.5,
         zscore_threshold: float = 3.0,
     ) -> pd.DataFrame:
@@ -28,6 +28,7 @@ class DandaActionAccessor:
         df = self._df.copy()
 
         row_mask = pd.Series(False, index=df.index)
+        mask_df = pd.DataFrame()
 
         for column in columns:
 
@@ -46,14 +47,17 @@ class DandaActionAccessor:
                 zscore_threshold,
             )
 
-            if strategy == "remove":
+            if strategy == "remove":  # removes whole rows
                 row_mask |= mask
 
-            elif strategy == "nan":
+            elif strategy == "nan":  # nan only affects offending values
                 df.loc[mask, column] = pd.NA
 
-            elif strategy == "clip":
+            elif strategy == "clip":  # clip is column-wise
                 df[column] = series.clip(lower=lower, upper=upper)
+
+            elif strategy == "mask":
+                mask_df[column] = mask.copy()
 
             else:
                 raise ValueError(
@@ -62,6 +66,9 @@ class DandaActionAccessor:
 
         if strategy == "remove":
             df = df.loc[~row_mask].copy()
+
+        if strategy == "mask":
+            return mask_df
 
         return df
 

@@ -62,7 +62,7 @@ class TestOutlierReportPlugin(unittest.TestCase):
 
         age = data["age"]
 
-        self.assertEqual(age["method"], "IQR")
+        self.assertEqual(age["method"], "MODIFIED-ZSCORE")
         self.assertEqual(age["count"], 1)
         self.assertEqual(age["min"], 100)
         self.assertEqual(age["max"], 100)
@@ -147,7 +147,7 @@ class TestOutlierReportPlugin(unittest.TestCase):
 
         self.assertIn("Outliers detected:", report)
         self.assertIn("age", report)
-        self.assertIn("Method: IQR", report)
+        self.assertIn("Method: MODIFIED-ZSCORE", report)
         self.assertIn("Outliers: 1", report)
-        self.assertIn("Range: 100 to 100", report)
+        self.assertIn("Outlier Interval: 100 to 100", report)
         self.assertIn("Row 20: 100", report)
