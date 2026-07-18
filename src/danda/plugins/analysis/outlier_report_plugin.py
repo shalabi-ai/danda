@@ -1,10 +1,9 @@
 from __future__ import annotations
 
 import pandas as pd
-
 from danda.plugins.analysis.analysis_plugin import AnalysisPlugin
+from danda.plugins.analysis.outlier_detector import OutlierDetector
 from danda.plugins.report_collector import ReportCollector
-
 
 class OutlierReportPlugin(AnalysisPlugin):
 
@@ -30,10 +29,18 @@ class OutlierReportPlugin(AnalysisPlugin):
         method = config.analysis.outlier_method
         max_examples = config.analysis.outlier_max_examples
         include_examples = config.analysis.outlier_include_examples
+        iqr_multiplier = config.analysis.outlier_iqr_multiplier
+        zscore_threshold = config.analysis.outlier_zscore_threshold
+        note_threshold = config.analysis.outlier_note_threshold
 
         result = {}
 
         numeric = before.select_dtypes(include="number")
+        rows = len(before)
+
+        threshold = f"×{zscore_threshold}"
+        if method == "iqr":
+            threshold = f"±{iqr_multiplier}"
 
         for column in numeric.columns:
 
@@ -42,31 +49,27 @@ class OutlierReportPlugin(AnalysisPlugin):
             if len(series) < 2:
                 continue
 
-            if method == "iqr":
-                mask = self._iqr_mask(
-                    series,
-                    config.analysis.outlier_iqr_multiplier,
-                )
-
-            elif method == "zscore":
-                mask = self._zscore_mask(
-                    series,
-                    config.analysis.outlier_zscore_threshold,
-                )
-
-            else:
-                raise ValueError(f"Unknown outlier method: {method}")
+            mask, lower, upper = OutlierDetector.detect(series, method, iqr_multiplier, zscore_threshold)
 
             outliers = series[mask]
 
             if outliers.empty:
                 continue
 
+
+
+            percent = len(outliers) * 100 / rows
             data = {
                 "method": method.upper(),
+                "threshold": threshold,
                 "count": len(outliers),
+                "rows": rows,
+                "percent": percent,
                 "min": outliers.min(),
                 "max": outliers.max(),
+                "high_outliers": upper,
+                "low_outliers": lower,
+                "note_threshold": percent >= note_threshold,
             }
 
             if include_examples:
@@ -80,38 +83,15 @@ class OutlierReportPlugin(AnalysisPlugin):
 
             result[column] = data
 
-        return result
-
-    def _iqr_mask(
-        self,
-        series: pd.Series,
-        multiplier: float,
-    ) -> pd.Series:
-
-        q1 = series.quantile(0.25)
-        q3 = series.quantile(0.75)
-
-        iqr = q3 - q1
-
-        lower = q1 - multiplier * iqr
-        upper = q3 + multiplier * iqr
-
-        return (series < lower) | (series > upper)
-
-    def _zscore_mask(
-        self,
-        series: pd.Series,
-        threshold: float,
-    ) -> pd.Series:
-
-        std = series.std()
-
-        if std == 0:
-            return pd.Series(False, index=series.index)
-
-        z = (series - series.mean()) / std
-
-        return z.abs() > threshold
+        sorted_items = sorted(
+            result.items(),
+            key=lambda item: (
+                -item[1]["percent"],
+                item[0],  # alphabetical tie-breaker
+            ),
+        )
+        sorted_result = dict(sorted_items)
+        return sorted_result
 
     def _report(self, data, report: ReportCollector) -> str:
 
@@ -122,13 +102,18 @@ class OutlierReportPlugin(AnalysisPlugin):
 
         for column, stats in data.items():
 
+
             lines.extend(
                 [
                     "",
                     column,
-                    f"Method: {stats['method']}",
-                    f"Outliers: {stats['count']}",
-                    f"Range: {stats['min']} to {stats['max']}",
+                    f"Method: {stats['method']} ({stats['threshold']})",
+                    f"Outliers: {self._fmt(stats['count'])} of {self._fmt(stats['rows'])} ({self._fmt(stats['percent'])}%)",
+                    f"Outlier Range: {self._fmt(stats['min'])} to {self._fmt(stats['max'])}",
+                    "",
+                    "Bounds:",
+                    f"Lower: {self._fmt(stats['low_outliers'])}",
+                    f"Upper: {self._fmt(stats['high_outliers'])}",
                 ]
             )
 
@@ -146,6 +131,22 @@ class OutlierReportPlugin(AnalysisPlugin):
 
                 if remaining > 0:
                     lines.append(f"... {remaining} more")
+
+            if stats["note_threshold"]:
+                lines.extend(
+                    [
+                        "",
+                        "Note:",
+                        (
+                            "A relatively large proportion of values were "
+                            "classified as outliers."
+                        ),
+                        (
+                            "This may indicate a skewed distribution rather "
+                            "than data quality issues."
+                        ),
+                    ]
+                )
 
         return "\n".join(lines)
 

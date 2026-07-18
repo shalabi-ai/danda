@@ -208,3 +208,15 @@ class AnalysisConfig(ConfigSection):
             "feature": "Outlier Detection",
         },
     )
+
+    outlier_note_threshold: float = field(
+        default=5.0,
+        metadata={
+            "description": (
+                "Minimum percentage of detected outliers required before "
+                "displaying a note that the distribution may be naturally "
+                "skewed rather than indicative of data quality issues."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )

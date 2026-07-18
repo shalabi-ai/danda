@@ -1,5 +1,6 @@
 import pandas as pd
 from danda.configuration.danda_configuration import DandaConfig
+from danda.danda_action_accessor import DandaActionAccessor
 from danda.plugins.analysis.column_summary_plugin import ColumnSummaryPlugin
 from danda.plugins.analysis.constant_columns_plugin import ConstantColumnsPlugin
 from danda.plugins.analysis.missing_values_report_plugin import MissingValuesReportPlugin
@@ -149,5 +150,5 @@ class DandaAccessor:
         return self._df.attrs["danda_config"]
 
     @property
-    def actions(self) -> DandaActionAccessor:
+    def action(self) -> DandaActionAccessor:
         return DandaActionAccessor(self._df)
