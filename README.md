@@ -3,394 +3,150 @@
 > **_Stop writing the same pandas preprocessing code over and over._**
 > 
 > **Automatically clean and optimize pandas DataFrames with one line of code.**
+> 
+> **Prepare your pandas DataFrames for analysis with safe, deterministic transformations.**
+> 
 
-`danda` prepares DataFrames for analysis by performing safe, deterministic cleaning, type inference, and memory optimization while preserving the meaning of the data.
+`danda` is a lightweight extension for **pandas** that helps you clean, optimize, analyze, and impute data using a simple DataFrame accessor.
 
-`danda` is a lightweight extension for pandas that prepares messy data for analysis by automatically cleaning, converting data types, and reducing memory usage.
-
-Instead of writing dozens of lines of preprocessing code, simply do:
+Instead of writing repetitive preprocessing code for every project, `danda` provides a consistent, configurable workflow that prepares your data for analysis while preserving its meaning.
 
 ```python
-clean_df = df.dg.clean().dg.optimize()
+import pandas as pd
+import danda
+
+df = (
+    pd.read_csv("employees.csv")
+      .dg.clean()
+      .dg.optimize()
+)
+
+print(df.dtypes)
+print(df.dg.report)
 ```
+
+---
+
+## Philosophy
+
+`danda` is built on a simple principle:
+
+> **Only automate transformations that are objective, safe, and almost always desired.**
+
+A transformation should be:
+
+- **Objective** — there is little ambiguity about the correct result.
+- **Safe** — it has a very low risk of changing the meaning of the data.
+- **Automatic** — it is something users almost always perform after loading a DataFrame.
+
+For example, `danda` will automatically:
+
+- Remove completely empty rows and columns.
+- Remove duplicate rows.
+- Trim whitespace from string values.
+- Normalize common missing values.
+- Convert numeric strings to numeric types.
+- Detect boolean values.
+- Detect datetime values.
+- Convert suitable string columns to categorical types.
+- Reduce memory usage by selecting more efficient data types.
+- Generate data quality reports.
+
+On the other hand, operations that require domain knowledge—such as imputing missing values, removing outliers, or dropping columns—are never performed automatically. These actions require explicit user intent.
+
+By focusing on deterministic, low-risk transformations, `danda` helps keep preprocessing code concise, reproducible, and easy to reason about while remaining fully compatible with the pandas ecosystem.
 
 ---
 
 ## Why danda?
 
-Every data scientist has written code like this:
+Most data analysis projects begin with the same repetitive preprocessing steps.
 
 ```python
-df = pd.read_csv("sales.csv")
+import pandas as pd
 
+df = pd.read_csv("employees.csv")
+
+# Remove empty data
 df = df.dropna(how="all")
 df = df.dropna(axis=1, how="all")
 df = df.drop_duplicates()
 
-df["created_at"] = pd.to_datetime(df["created_at"])
-df["active"] = df["active"].astype(bool)
+# Clean strings
+df = df.apply(
+    lambda col: col.str.strip() if col.dtype == "object" else col
+)
+
+# Convert data types
+df["age"] = pd.to_numeric(df["age"])
+df["active"] = df["active"].map({"True": True, "False": False})
+df["created"] = pd.to_datetime(df["created"])
 df["country"] = df["country"].astype("category")
-df["price"] = pd.to_numeric(df["price"])
 ```
 
-With **danda**, all of that becomes:
+This code is repeated across notebooks, scripts, and projects. It is often inconsistent, difficult to maintain, and easy to forget.
 
-```python
-df = pd.read_csv("sales.csv")
-
-df = df.dg.clean().dg.optimize()
-```
-
----
-
-# Features
-
-## 🧹 Data cleaning
-
-Automatically:
-
-- Remove empty rows
-- Remove empty columns
-- Remove duplicate rows
-- Strip leading/trailing whitespace
-
-Example:
-
-| Before | After |
-|---------|-------|
-| `" John "` | `"John"` |
-| `" Alice"` | `"Alice"` |
-| `"Bob "` | `"Bob"` |
-
----
-
-## 📅 Automatic type detection
-
-Automatically converts string columns to their appropriate pandas dtypes.
-
-### Boolean
-
-```
-"True"
-"False"
-"0"
-"1"
-0
-1
-```
-
-↓
-
-```
-boolean
-```
-
----
-
-### Datetime
-
-```
-2024-01-01
-2024/01/01
-2024-01-01T12:30:00
-Jan 1, 2024
-```
-
-↓
-
-```
-datetime64[ns]
-```
-
----
-
-### Numeric
-
-```
-"10"
-"25"
-"3.14"
-```
-
-↓
-
-```
-int64 / float64
-```
-
----
-
-### Category
-
-Low-cardinality columns are automatically converted to pandas `category` dtype to reduce memory usage.
-
-Example:
-
-```
-Country
-
-Germany
-France
-Germany
-Germany
-France
-```
-
-↓
-
-```
-category
-```
-
----
-
-## 📉 Memory optimization
-
-Optimizing dtypes can dramatically reduce memory usage.
-
-```python
-before.dg.compare_memory(after)
-```
-
-Example:
-
-```
-Before : 95 MB
-After  : 21 MB
-
-Saved : 74 MB (77.9%)
-```
-
----
-
-## 📄 Cleaning reports
-
-Every operation produces a report describing what happened.
-
-```python
-optimized.dg.report
-```
-
-Example:
-
-```python
-{
-    "clean": {
-        "EmptyRowsPlugin":
-            "Number of deleted rows: 15",
-
-        "EmptyColumnsPlugin":
-            "Number of deleted columns: 2",
-
-        "DropDuplicates":
-            "Number of deleted rows: 31"
-    },
-
-    "optimize": {
-        "BooleanTypePlugin":
-            ["active"],
-
-        "DateTimeTypePlugin":
-            ["created_at"],
-
-        "NumericTypePlugin":
-            ["price"],
-
-        "CategoryTypePlugin":
-            ["country"]
-    }
-}
-```
-
----
-
-## ⚙️ Configuration
-
-`danda` is configurable, allowing you to control how cleaning and type detection behave. Every DataFrame has its own configuration, making it easy to customize behavior for different datasets.
+With `danda`, the same workflow becomes:
 
 ```python
 import pandas as pd
 import danda
 
-df = pd.read_csv("employees.csv")
-
-# Disable numeric detection
-df.dg.config.types.numeric_enabled = False
-
-# Be more strict when detecting categories
-df.dg.config.types.category_threshold = 0.05
-
-# Preserve the original index when removing duplicates
-df.dg.config.cleaning.remove_duplicates_ignore_index = False
-
-df = df.dg.optimize()
-```
-
-You can inspect the current configuration at any time:
-
-```python
-print(df.dg.config.show())
-```
-
-which produces output similar to:
-
-```text
-TypeConfig
-==========
-
-Numeric Detection
------------------
-
-numeric_enabled                    : True
-    Default     : True
-    Description : Enable automatic detection and conversion of numeric columns.
-
-numeric_threshold                  : 0.95
-    Default     : 0.95
-    Description : Minimum fraction of non-null values that must be successfully
-                  converted to numeric before the column is considered numeric.
-```
-
-For a complete list of configuration options and examples, see the
-**[Configuration Guide](docs/configuration.md)**.
-
----
-
-## Filling Missing Values
-
-`danda` can automatically fill missing values after your DataFrame has been cleaned and optimized.
-
-Unlike cleaning operations (such as removing empty rows or converting data types), filling missing values **changes the data**. For this reason, imputation is **disabled by default** and must be explicitly enabled.
-
-#### Supported Strategies
-
-By default, `danda` selects a strategy based on the column data type:
-
-| Data Type | Default Strategy |
-| --------- | ---------------- |
-| Numeric   | Median           |
-| Boolean   | Mode             |
-| Category  | Mode             |
-| Text      | Mode             |
-| Datetime  | Forward fill     |
-
-These strategies can be customized through the configuration.
-
-#### Usage
-
-```python
-import danda
-
 df = (
-    pd.read_csv("data.csv")
+    pd.read_csv("employees.csv")
       .dg.clean()
       .dg.optimize()
-      .dg.impute()
 )
 ```
 
-Enable imputation:
+The result is a DataFrame that is ready for analysis with minimal code while remaining entirely within the pandas API.
 
-```python
-df.dg.config.imputation.enabled = True
-```
+### Designed for safe automation
 
-Customize strategies:
+Unlike many preprocessing libraries, `danda` intentionally avoids making assumptions about your data.
 
-```python
-df.dg.config.imputation.numeric_strategy = "mean"
-df.dg.config.imputation.category_strategy = "constant"
-df.dg.config.imputation.datetime_strategy = "bfill"
-```
+It only automates operations that are:
 
-#### Report
+- **Objective** — there is little ambiguity about the correct result.
+- **Safe** — they are unlikely to change the meaning of the data.
+- **Common** — they are operations that users almost always perform after loading a DataFrame.
 
-After imputation, `danda` records which columns were filled and the strategy that was used.
+For example, `danda` will automatically:
 
-Example:
+- Remove completely empty rows and columns.
+- Remove duplicate rows.
+- Trim whitespace from string values.
+- Normalize common missing values.
+- Infer numeric, boolean, datetime, and categorical types.
+- Optimize memory usage.
+- Generate data quality reports.
 
-```text
-Filled missing values:
-- Age: median (12)
-- Salary: mean (4)
-- Country: mode (8)
-- Date: ffill (2)
-```
+However, operations that depend on domain knowledge are never performed automatically.
 
-#### Learn More
+For example, `danda` will **not**:
 
-For a complete description of the available strategies, configuration options, and implementation details, see **[Imputation Guide](docs/imputation.md)**.
+- Remove outliers.
+- Impute missing values.
+- Drop columns because they contain missing values.
+- Encode categorical variables.
+- Scale or normalize numeric data.
+- Modify values based on statistical assumptions.
+
+These tasks require explicit user intent because there is no universally correct answer.
+
+By separating **automatic preparation** from **user-driven decisions**, `danda` provides a predictable and reproducible workflow that keeps your preprocessing code concise without sacrificing control.
 
 ---
 
-## Danda Accessor
+## Installation
 
-Danda extends pandas with the `.dg` accessor, providing a simple and consistent API for cleaning, analyzing, optimizing, and transforming DataFrames.
-
-Instead of calling multiple pandas functions, you can perform common data preparation tasks directly from your DataFrame.
-
-```python
-import pandas as pd
-import danda
-
-df = pd.read_csv("titanic.csv")
-
-df = (
-    df
-    .dg.clean()
-    .dg.optimize()
-    .dg.analyse()
-)
-```
-
-The accessor groups functionality into logical categories:
-
-| Category | Description |
-|----------|-------------|
-| **Cleaning** | Remove duplicates, normalize missing values, trim whitespace, remove sparse or empty rows and columns, and other data cleaning operations. |
-| **Analysis** | Generate data quality reports, detect missing values, identify suspicious values, find binary columns, and profile dataset quality without modifying the data. |
-| **Optimization** | Reduce memory usage by converting data types such as boolean, category, numeric, and datetime where appropriate. |
-| **Imputation** | Fill missing values using configurable strategies such as median, mode, forward fill, backward fill, or constant values. |
-
-Each operation preserves the DataFrame interface and can be chained naturally.
-
-```python
-df = (
-    pd.read_csv("customers.csv")
-      .dg.clean()
-      .dg.impute_missing_values()
-      .dg.optimize()
-      .dg.analyse()
-)
-```
-
-### Reports
-
-Many accessor methods generate detailed reports describing the actions performed or issues detected.
-
-```python
-df = df.dg.clean().dg.analyse()
-
-print(df.dg.report())
-```
-
-### Learn More
-
-For a complete reference of every accessor method, configuration option, and usage example, see:
-
-- **[Accessor Reference](docs/danda_accessor.md)**
-
----
-
-# Installation
+Install `danda` from PyPI using `pip`:
 
 ```bash
 pip install danda
 ```
 
----
-
-# Quick Start
+`danda` extends the pandas API by registering the `.dg` DataFrame accessor. Simply import `danda` once in your application before using the accessor.
 
 ```python
 import pandas as pd
@@ -398,88 +154,167 @@ import danda
 
 df = pd.read_csv("employees.csv")
 
-clean = df.dg.clean()
-
-optimized = clean.dg.optimize()
-
-print(optimized.dg.report)
-
-print(clean.dg.compare_memory(optimized))
+df.dg.clean()
 ```
 
----
+### Requirements
 
-# Pandas Accessor
+- Python 3.10+
+- pandas 2.x
 
-`danda` integrates directly into pandas using a custom accessor.
+### Verify the installation
 
 ```python
-df.dg.clean()
+import pandas as pd
+import danda
 
-df.dg.optimize()
+df = pd.DataFrame({"A": [1, 2, 3]})
 
-df.dg.report
-
-df.dg.compare_memory(other_df)
+print(df.dg)
 ```
 
-No new DataFrame class.
-No wrapper objects.
-
-Just pandas.
+If the installation was successful, the `.dg` accessor will be available on every pandas `DataFrame`.
 
 ---
 
-# Philosophy
+## Quick Start
 
-`danda` follows a simple principle:
+`danda` integrates directly with pandas through the `.dg` DataFrame accessor. A typical workflow consists of four steps:
 
-> **Prepare data for analysis automatically while preserving the familiar pandas workflow.**
+1. **Clean** the data.
+2. **Optimize** data types and memory usage.
+3. **Analyze** data quality.
+4. **Impute** missing values (optional).
 
-The library is designed to feel like a natural extension of pandas rather than a replacement.
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("employees.csv")
+
+# Clean the data
+df = df.dg.clean()
+
+# Optimize data types
+df = df.dg.optimize()
+
+# Generate analysis reports
+df = df.dg.analyze()
+
+# (Optional) Impute missing values
+# df = df.dg.impute()
+```
+
+### Chaining operations
+
+Since each operation returns a new DataFrame, they can be chained together.
+
+```python
+df = (
+    pd.read_csv("employees.csv")
+      .dg.clean()
+      .dg.optimize()
+      .dg.analyze()
+)
+```
+
+### Viewing reports
+
+Most operations generate reports describing what was detected or changed.
+
+```python
+reports = df.dg.report
+
+print(reports["clean"])
+print(reports["optimize"])
+print(reports["analysis"])
+```
+
+Example:
+
+```text
+Clean
+├── Removed 3 empty rows
+├── Removed 1 empty column
+└── Removed 12 duplicate rows
+
+Optimize
+├── Converted 4 columns to numeric
+├── Converted 2 columns to datetime
+└── Reduced memory usage by 68%
+
+Analysis
+├── Missing values detected
+├── Constant columns detected
+└── Outliers detected
+```
+
+### Configuration
+
+Every DataFrame has its own configuration, allowing you to customize `danda` without affecting other DataFrames.
+
+```python
+config = df.dg.config
+
+config.types.datetime_enabled = False
+config.analysis.outlier_method = "zscore"
+
+df = (
+    df
+    .dg.clean()
+    .dg.optimize()
+    .dg.analyze()
+)
+```
+
+This keeps your preprocessing pipeline concise, reproducible, and fully configurable while remaining entirely within the pandas API.
 
 ---
 
-# Roadmap
+## Documentation
 
-Planned features include:
+The README provides an overview of `danda`. Detailed documentation for each feature is available in the `docs/` directory.
 
-- Read functions (`danda.read_csv()`, `read_excel()`, `read_parquet()`)
-- Missing value normalization
-- Integer downcasting
-- Float optimization
-- Automatic ID detection
-- Data validation
-- Dataset profiling
-- Configurable plugin pipeline
-- Custom plugins
+| Guide                                      | Description |
+|--------------------------------------------|-------------|
+| **Getting Started**                        | Install `danda`, understand its philosophy, and build your first preprocessing pipeline. |
+| **Cleaning**                               | Learn about cleaning plugins, supported transformations, and configuration options. |
+| **Optimization**                           | Understand type inference, memory optimization, and configurable thresholds. |
+| **[Analysis](docs/analysis.md)**           | Explore the available analysis plugins, generated reports, and customization options. |
+| **[Imputation](docs/imputation.md)**       | Learn about supported imputation strategies and when to use them. |
+| **[Configuration](docs/configuration.md)** | Configure cleaning, optimization, analysis, and imputation behavior on a per-DataFrame basis. |
+| **Actions**                                | Perform explicit operations such as handling detected outliers after analysis. |
+| **Reports**                                | Understand how reports are generated, accessed, and interpreted. |
+| **Plugin Development**                     | Create custom plugins and extend `danda` with your own cleaning, optimization, analysis, or imputation logic. |
+| **API Reference**                          | Complete reference for the `.dg` accessor, configuration objects, and plugin interfaces. |
+
+### Examples
+
+The `examples/` directory contains complete, runnable examples demonstrating common workflows, including:
+
+- Cleaning raw datasets
+- Optimizing memory usage
+- Analyzing data quality
+- Handling missing values
+- Detecting and handling outliers
+- Configuring `danda` for different datasets
+
+### Contributing Documentation
+
+Contributions to the documentation are welcome. If you discover missing information, unclear explanations, or opportunities for improvement, please open an issue or submit a pull request.
 
 ---
 
-# Plugin Architecture
+## Roadmap
 
-`danda` is built around a plugin system.
+`danda` is actively evolving to provide a comprehensive toolkit for preparing pandas DataFrames for analysis. The focus remains on **safe**, **deterministic**, and **configurable** data preparation.
 
-Current plugins include:
-
-- EmptyRowsPlugin
-- EmptyColumnsPlugin
-- DropDuplicatesPlugin
-- EmptySpacesPlugin
-- BooleanTypePlugin
-- DateTimeTypePlugin
-- NumericTypePlugin
-- CategoryTypePlugin
-
-Creating your own plugins is straightforward, allowing you to customize the cleaning pipeline for your own datasets.
+see [Roadmap](docs/roadmap.md)
 
 ---
 
 # Contributing
 
-Contributions, feature requests, and bug reports are welcome!
+Contributions are welcome! Whether you're fixing a bug, improving the documentation, adding a new plugin, or proposing a new feature, your help is appreciated.
 
-If you have an idea that makes data cleaning easier, feel free to open an issue or submit a pull request.
-
-#### Normalize missing values
-
+see [Contributing](docs/contributing.md)

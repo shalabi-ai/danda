@@ -11,6 +11,8 @@ class EmptyRowsPlugin(CleanPlugin):
         return df.dropna(how="all")
 
     def _report(self, data, report: ReportCollector) -> str:
+        if data == 0:
+            return "No empty rows deleted."
         return f"Number of deleted rows: {data}"
 
     def _get_report_data(self, before: pd.DataFrame, after: pd.DataFrame, report: ReportCollector):

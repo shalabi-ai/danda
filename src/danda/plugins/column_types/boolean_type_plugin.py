@@ -54,7 +54,7 @@ class BooleanTypePlugin(TypePlugin):
 
     def _report(self, data, report: ReportCollector) -> str:
         if len(data) == 0:
-            return "no columns converted"
+            return "No columns converted"
         return f"convert these columns to boolean {', '.join(data)}"
 
     def _get_config_params(self, df: pd.DataFrame) -> dict:

@@ -15,6 +15,8 @@ class EmptyColumnsPlugin(CleanPlugin):
         return len(before.columns) - len(after.columns)
 
     def _report(self, data, report: ReportCollector) -> str:
+        if data == 0:
+            return "No empty columns deleted."
         return f'Number of deleted columns: {data}'
 
     def _get_config_params(self, df: pd.DataFrame) -> dict:

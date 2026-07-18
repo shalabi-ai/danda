@@ -225,6 +225,58 @@ returns
 
 ---
 
+# ⚙️ Configuration
+
+`danda` is configurable, allowing you to control how cleaning and type detection behave. Every DataFrame has its own configuration, making it easy to customize behavior for different datasets.
+
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("employees.csv")
+
+# Disable numeric detection
+df.dg.config.types.numeric_enabled = False
+
+# Be more strict when detecting categories
+df.dg.config.types.category_threshold = 0.05
+
+# Preserve the original index when removing duplicates
+df.dg.config.cleaning.remove_duplicates_ignore_index = False
+
+df = df.dg.optimize()
+```
+
+You can inspect the current configuration at any time:
+
+```python
+print(df.dg.config.show())
+```
+
+which produces output similar to:
+
+```text
+TypeConfig
+==========
+
+Numeric Detection
+-----------------
+
+numeric_enabled                    : True
+    Default     : True
+    Description : Enable automatic detection and conversion of numeric columns.
+
+numeric_threshold                  : 0.95
+    Default     : 0.95
+    Description : Minimum fraction of non-null values that must be successfully
+                  converted to numeric before the column is considered numeric.
+```
+
+For a complete list of configuration options and examples, see the
+**[Configuration Guide](docs/configuration.md)**.
+
+---
+
 # `compare_memory()`
 
 Compare the memory usage of two DataFrames.

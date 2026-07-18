@@ -48,7 +48,7 @@ class TestBooleanTypePlugin(unittest.TestCase):
         expected_data = {'types': {'BooleanTypePlugin': []}}
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {'types': {'BooleanTypePlugin': 'no columns converted'}}
+        expected_report = {'types': {'BooleanTypePlugin': 'No columns converted'}}
         self.assertEqual(expected_report, self.report.report)
 
     def test_handles_missing_values(self):
