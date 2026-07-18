@@ -20,11 +20,14 @@ class ColumnSummaryPlugin(AnalysisPlugin):
     ) -> dict[str, dict]:
 
         result = {}
+        rows = len(before)
 
         for column in before.columns:
+            missing = before[column].isna().sum()
             result[column] = {
                 "dtype": str(before[column].dtype),
                 "missing": int(before[column].isna().sum()),
+                "missing_percent": int(missing * 100 / rows),
                 "unique": int(before[column].nunique(dropna=True)),
             }
 
@@ -39,7 +42,7 @@ class ColumnSummaryPlugin(AnalysisPlugin):
                     "",
                     column,
                     f"Type: {stats['dtype']}",
-                    f"Missing: {stats['missing']}",
+                    f"Missing: {stats['missing']} ({stats['missing_percent']}%)",
                     f"Unique: {stats['unique']}",
                 ]
             )

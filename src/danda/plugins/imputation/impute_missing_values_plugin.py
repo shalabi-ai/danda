@@ -56,6 +56,7 @@ class ImputeMissingValuesPlugin(ImputePlugin):
                 result[column] = self._fill_datetime(series)
 
             elif is_categorical_dtype(series):
+            #elif isinstance(series, pd.CategoricalDtype): did not work
                 result[column] = self._fill_category(series)
 
             elif is_numeric_dtype(series):

@@ -1,5 +1,6 @@
 from dataclasses import dataclass, field
 from danda.configuration.config_section import ConfigSection
+from typing import Literal
 
 @dataclass
 class AnalysisConfig(ConfigSection):
@@ -135,5 +136,75 @@ class AnalysisConfig(ConfigSection):
                 "Maximum number of sparse rows to include in the report."
             ),
             "feature": "Sparse Row Reporting",
+        },
+    )
+
+    ###################
+    #outlier
+    ################
+    outlier_enabled: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Enable detection of outliers in numeric columns."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )
+
+    outlier_method: Literal["iqr", "zscore"] = field(
+        default="iqr",
+        metadata={
+            "description": (
+                "Statistical method used to identify outliers. "
+                "'iqr' uses the interquartile range, while 'zscore' "
+                "uses the standard score."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )
+
+    outlier_iqr_multiplier: float = field(
+        default=1.5,
+        metadata={
+            "description": (
+                "Multiplier applied to the interquartile range (IQR) "
+                "when calculating the lower and upper bounds for "
+                "outlier detection."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )
+
+    outlier_zscore_threshold: float = field(
+        default=3.0,
+        metadata={
+            "description": (
+                "Absolute Z-score threshold above which a value is "
+                "considered an outlier."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )
+
+    outlier_max_examples: int = field(
+        default=10,
+        metadata={
+            "description": (
+                "Maximum number of outlier examples to include in "
+                "analysis reports for each column."
+            ),
+            "feature": "Outlier Detection",
+        },
+    )
+
+    outlier_include_examples: bool = field(
+        default=True,
+        metadata={
+            "description": (
+                "Include example row indices and values for detected "
+                "outliers in the analysis report."
+            ),
+            "feature": "Outlier Detection",
         },
     )

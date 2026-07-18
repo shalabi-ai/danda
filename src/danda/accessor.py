@@ -4,6 +4,7 @@ from danda.plugins.analysis.column_summary_plugin import ColumnSummaryPlugin
 from danda.plugins.analysis.constant_columns_plugin import ConstantColumnsPlugin
 from danda.plugins.analysis.missing_values_report_plugin import MissingValuesReportPlugin
 from danda.plugins.analysis.missing_values_summary_plugin import MissingValuesSummaryPlugin
+from danda.plugins.analysis.outlier_report_plugin import OutlierReportPlugin
 from danda.plugins.analysis.potential_missing_values_plugin import PotentialMissingValuesPlugin
 from danda.plugins.analysis.sparse_rows_report_plugin import SparseRowsReportPlugin
 from danda.plugins.analysis.suspicious_missing_values_plugin import SuspiciousMissingValuesPlugin
@@ -87,6 +88,7 @@ class DandaAccessor:
             SparseRowsReportPlugin(report_collector),
             PotentialBooleanTypePlugin(report_collector),
             ConstantColumnsPlugin(report_collector),
+            OutlierReportPlugin(report_collector),
             #PotentialDateTimeTypePlugin(report_collector),
             #PotentialCategoryTypePlugin(report_collector),
             #PotentialMissingValuesPlugin(report_collector),
@@ -145,3 +147,7 @@ class DandaAccessor:
             self._df.attrs["danda_config"] = DandaConfig()
 
         return self._df.attrs["danda_config"]
+
+    @property
+    def actions(self) -> DandaActionAccessor:
+        return DandaActionAccessor(self._df)

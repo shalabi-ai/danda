@@ -34,6 +34,11 @@ class CategoryTypePlugin(TypePlugin):
             ):
                 continue
 
+            converted = pd.to_numeric(df[column].dropna(), errors="coerce")
+            if converted.notna().mean() >= 1.0:
+                # This is really a numeric column.
+                continue
+
             unique_count = df[column].nunique(dropna=True)
             unique_ratio = unique_count / n_rows
 
