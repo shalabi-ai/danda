@@ -153,7 +153,7 @@ class AnalysisConfig(ConfigSection):
     )
 
     outlier_method: Literal["iqr", "zscore", "modified-zscore"] = field(
-        default="iqr",
+        default="modified-zscore", #"iqr"
         metadata={
             "description": (
                 "Statistical method used to identify outliers. "

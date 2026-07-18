@@ -47,7 +47,7 @@ class OutlierDetector:
 
         elif method == "modified-zscore":
 
-            mean = valid.mean()
+            mean = valid.median()
             std = valid.std()
 
             if std == 0:
@@ -76,55 +76,50 @@ class OutlierDetector:
         zscore_threshold: float = 3.0,
         width: int = 50,
     ) -> list:
-        """
-        Return an ASCII visualization of the outlier bounds.
 
-        Example:
-
-        43                    58.75              64.75                    79
-        |----------------------|==================|------------------------|
-                               LB                UB
-        """
-
-        mask, lower, upper = OutlierDetector.detect(
+        _, lower, upper = OutlierDetector.detect(
             series,
-            method=method,
-            iqr_multiplier=iqr_multiplier,
-            zscore_threshold=zscore_threshold,
+            method,
+            iqr_multiplier,
+            zscore_threshold,
         )
 
         valid = series.dropna()
 
         if valid.empty:
-            return "No numeric data."
+            return []
 
         observed_min = valid.min()
         observed_max = valid.max()
 
-        # Degenerate case
         if observed_min == observed_max:
-            return f"{observed_min}\n{'|' + '=' * (width - 2) + '|'}"
+            return [f"{observed_min:g}\n|{'=' * (width - 2)}|"]
 
         def pos(value: float) -> int:
-            value = max(observed_min, min(observed_max, value))
             return round(
                 (value - observed_min) / (observed_max - observed_min) * (width - 1)
             )
 
-        lo = pos(lower)
-        hi = pos(upper)
+        lo_outside = lower < observed_min
+        hi_outside = upper > observed_max
+
+        lo = 0 if lo_outside else pos(lower)
+        hi = width - 1 if hi_outside else pos(upper)
 
         graph = ["-"] * width
 
-        # Normal range
         for i in range(lo, hi + 1):
             graph[i] = "="
 
-        # Bounds
-        graph[lo] = "|"
-        graph[hi] = "|"
+        if lo_outside:
+            graph[0] = "<"
+        else:
+            graph[lo] = "|"
 
-        line = "".join(graph)
+        if hi_outside:
+            graph[-1] = ">"
+        else:
+            graph[hi] = "|"
 
         header = (
             f"{observed_min:g}"
@@ -133,11 +128,12 @@ class OutlierDetector:
         )
 
         labels = [" "] * width
-        for text, p in [("LB", lo), ("UB", hi)]:
-            start = max(0, min(width - len(text), p - len(text) // 2))
-            labels[start : start + len(text)] = list(text)
 
-        label_line = "".join(labels)
+        if not lo_outside:
+            labels[max(0, lo - 1) : max(0, lo - 1) + 2] = "LB"
 
-        #return f"{header}\n{line}\n{label_line}"
-        return [header, line, label_line]
+        if not hi_outside:
+            start = min(width - 2, hi - 1)
+            labels[start : start + 2] = "UB"
+
+        return ["".join(header), "".join(graph), "".join(labels)]

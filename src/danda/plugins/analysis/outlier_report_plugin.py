@@ -123,7 +123,16 @@ class OutlierReportPlugin(AnalysisPlugin):
         if not data:
             return "No outliers detected."
 
-        lines = ["Outliers detected:"]
+        lines = [
+            "Outliers detected:",
+            "",
+            "Legend:",
+            "<  Bound lies below observed values",
+            ">  Bound lies above observed values",
+            "=  Values within normal bounds",
+            "-  Outlier region",
+            "|  Outlier threshold",
+        ]
 
         for column, stats in data.items():
 
@@ -134,7 +143,7 @@ class OutlierReportPlugin(AnalysisPlugin):
                     column,
                     f"Method: {stats['method']} ({stats['threshold']})",
                     f"Outliers: {self._fmt(stats['count'])} of {self._fmt(stats['rows'])} ({self._fmt(stats['percent'])}%)",
-                    f"Outlier Range: {self._fmt(stats['min'])} to {self._fmt(stats['max'])}",
+                    f"Outlier Interval: {self._fmt(stats['min'])} to {self._fmt(stats['max'])}",
                     "",
                     "Bounds:",
                     f"Lower: {self._fmt(stats['low_outliers'])}",
