@@ -15,6 +15,7 @@ from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin
 from danda.plugins.clean.empty_rows_plugin import EmptyRowsPlugin
 from danda.plugins.clean.empty_spaces import EmptySpacesPlugin
 from danda.plugins.clean.normalize_missing_values_plugin import NormalizeMissingValuesPlugin
+from danda.plugins.clean.rename_columns_plugin import RenameColumnsPlugin
 from danda.plugins.clean.sparse_columns_plugin import SparseColumnsPlugin
 from danda.plugins.clean.sparse_rows_plugin import SparseRowsPlugin
 from danda.plugins.column_types.boolean_type_plugin import BooleanTypePlugin
@@ -43,6 +44,7 @@ class DandaAccessor:
     def clean(self):
         report_collector = ReportCollector()
         plugins = [
+            RenameColumnsPlugin(report_collector),
             EmptySpacesPlugin(report_collector),
             NormalizeMissingValuesPlugin(report_collector),
             SparseColumnsPlugin(report_collector),
