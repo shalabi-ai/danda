@@ -64,7 +64,6 @@ class TestRenameColumnsPlugin(unittest.TestCase):
             {
                 "Customer Name": ["Alice"],
                 "Order Date": [1],
-                "date":["my date"]
             }
         )
 
