@@ -40,18 +40,10 @@ class TestRenameColumnsPlugin(unittest.TestCase):
 
         assert_frame_equal(result, expected)
 
-        expected_data = {
-            "clean": {
-                "RenameColumnsPlugin": {
-                    "count": 3,
-                    "renamed": {
-                        "Customer Name": "customer_name",
-                        "Order-Date": "order_date",
-                        "Total.Price": "total_price",
-                    },
-                }
-            }
-        }
+        expected_data = {'clean': {'RenameColumnsPlugin': {'count': 3,
+                                   'renamed': ['customer_name',
+                                               'order_date',
+                                               'total_price']}}}
 
         self.assertEqual(expected_data, self.report.data)
 
@@ -59,6 +51,27 @@ class TestRenameColumnsPlugin(unittest.TestCase):
 
         self.assertEqual(expected_report, self.report.report)
 
+    def test_execute_renames_collision_columns(self):
+        df = pd.DataFrame(
+            {
+                "Customer Name": ["Alice"],
+                "Order Date": [1],
+                "Customer_Name": ["Alice"],
+                "Order_Date": [1],
+                "CustomerName": ["Alice"],
+                "OrderDate": [1],
+            }
+        )
+
+        df.dg.config.cleaning.rename_column_enabled = True
+        df.dg.config.cleaning.rename_column_style = ColumnCase.CAMEL
+
+        result = self.plugin.run(df)
+
+        self.assertListEqual(
+            list(result.columns),
+            ['customerName', 'orderDate', 'customerName2', 'orderDate2', 'customerName3', 'orderDate3'],
+        )
     def test_execute_renames_columns_to_camel_case(self):
         df = pd.DataFrame(
             {
@@ -114,7 +127,7 @@ class TestRenameColumnsPlugin(unittest.TestCase):
             "clean": {
                 "RenameColumnsPlugin": {
                     "count": 0,
-                    "renamed": {},
+                    "renamed": [],
                 }
             }
         }

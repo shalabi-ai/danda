@@ -59,31 +59,51 @@ class RenameColumnsPlugin(CleanPlugin):
             return result
 
         mapping = {
-            col: func(col)
-            for col in result.columns
+
         }
+        columns: set[str] = set()
+        for col in result.columns:
+            new = func(col)
+            if new in columns:
+                new = self._unique_column_name(new, columns)
+            columns.add(new)
+            mapping[col] = func(new)
 
         result = result.rename(columns=mapping)
 
         return result
 
+    def _unique_column_name(self, name: str, names: set[str]) -> str:
+        old = name
+        count = 2
+
+        while name in names:
+            name = f"{old}_{count}"
+            count += 1
+
+        return name
     def _get_report_data(self, before, after, report):
-        renamed = {
-            old: new
-            for old, new in zip(before.columns, after.columns)
-            if old != new
-        }
+        columns: set[str] = set()
+
+        for old, new in zip(before.columns, after.columns):
+            if old != new:
+                if new in columns:
+                    new = self._unique_column_name(new, columns)
+                columns.add(new)
+
+        list_columns = list(columns)
+        list_columns.sort()
 
         return {
-            "renamed": renamed,
-            "count": len(renamed),
+            "renamed": list_columns,
+            "count": len(columns),
         }
 
     def _report(self, data, report):
         if data["count"] == 0:
             return "No columns were renamed."
 
-        columns = ", ".join(data["renamed"].values())
+        columns = ", ".join(data["renamed"])
         return f"Renamed {data['count']} column(s). columns: {columns}"
 
     def _get_config_params(self, df):
