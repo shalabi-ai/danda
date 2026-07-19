@@ -4,6 +4,57 @@ import pandas as pd
 
 
 class SuspiciousMissingValuesPlugin(AnalysisPlugin):
+    """
+    Identifies values that may indicate missing data without modifying the DataFrame. The plugin searches all columns for user-configured suspicious values, such as placeholders like `"?"`, `"-"`, `"Unknown"`, `"Missing"`, or other domain-specific indicators. Matching can optionally ignore letter casing and leading/trailing whitespace. The report lists each column containing suspicious values together with the number of occurrences of each detected indicator.
+
+    Plugin Configuration:
+    - suspicious_missing_enabled
+    - suspicious_missing_values
+    - suspicious_missing_ignore_case
+    - suspicious_missing_strip_whitespace
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": ["Alice", "Unknown", "Bob", " Missing "],
+        "City": ["London", "?", "Paris", "-"],
+        "Department": ["HR", "IT", "Unknown", "HR"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    Assume the configuration is:
+    - suspicious_missing_values = ["Unknown", "Missing", "?", "-"]
+    - suspicious_missing_ignore_case = True
+    - suspicious_missing_strip_whitespace = True
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", "Unknown", "Bob", " Missing "],
+        "City": ["London", "?", "Paris", "-"],
+        "Department": ["HR", "IT", "Unknown", "HR"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    report:
+    {
+        "analysis": {
+            "SuspiciousMissingValuesPlugin": {
+                "Name": {
+                    "Unknown": 1,
+                    "Missing": 1
+                },
+                "City": {
+                    "?": 1,
+                    "-": 1
+                },
+                "Department": {
+                    "Unknown": 1
+                }
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector) -> None:
         super().__init__(

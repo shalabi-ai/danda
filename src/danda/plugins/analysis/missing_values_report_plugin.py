@@ -4,6 +4,50 @@ import pandas as pd
 
 
 class MissingValuesReportPlugin(AnalysisPlugin):
+    """
+    Analyzes the DataFrame and reports the number and percentage of missing values for each column containing at least one missing value. Columns without missing values are excluded from the report. The plugin performs analysis only and does not modify the input DataFrame.
+
+    Plugin Configuration:
+    - None (always enabled)
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": ["Alice", None, "Charlie", "David"],
+        "Age": [25, None, 35, 40],
+        "City": ["London", "Paris", None, None],
+        "Country": ["UK", "France", "UK", "Germany"]
+    })
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", None, "Charlie", "David"],
+        "Age": [25, None, 35, 40],
+        "City": ["London", "Paris", None, None],
+        "Country": ["UK", "France", "UK", "Germany"]
+    })
+
+    report:
+    {
+        "analysis": {
+            "MissingValuesReportPlugin": {
+                "Name": {
+                    "count": 1,
+                    "percent": 25.0
+                },
+                "Age": {
+                    "count": 1,
+                    "percent": 25.0
+                },
+                "City": {
+                    "count": 2,
+                    "percent": 50.0
+                }
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("MissingValuesReportPlugin", report)

@@ -1,0 +1,143 @@
+provide a documentation for DropDuplicatesPlugin plugin. the documentation will contain Description, configuration, and example sections. The example section
+will have an input pd.DataFrame that you will generate, the expected output Dataframe, and the expected dictionary report which will be generated based on the
+input dataframe and the output from function _get_report_data. The configuration section will extract the information from _get_config_params function for example
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).cleaning
+        return {
+            "enabled": config.remove_duplicates,
+            "ignore_index": config.remove_duplicates_ignore_index
+        }
+The configuration section will be: Plugin Configuration: remove_duplicates, remove_duplicates_ignore_index
+
+As an example the configuration section can look like:
+Example:
+input:
+pd.DataFrame({
+    "A": [1, 2, 2, 3],
+    "B": ["a", "b", "b", "c"],
+})
+
+output:
+pd.DataFrame({
+    "A": [1, 2, 3],
+    "B": ["a", "b", "c"],
+}, index=[0, 1, 3])
+
+report:
+{
+    "clean": {
+        "DropDuplicates": 1
+    }
+}
+
+The Plugin documentation will look like:
+'''
+This is the description
+
+Plugin Configuration: here is the configuration list
+
+Example:
+input: input dataframe
+
+output: output datafarem
+
+report: dictionary report output
+'''
+
+To build this configuration you need to know the base plugin:
+
+from abc import ABC, abstractmethod
+import pandas as pd
+from typing import final
+from danda.configuration.danda_configuration import DandaConfig
+from danda.plugins.report_collector import ReportCollector
+
+
+class Plugin(ABC):
+    def __init__(self, plugin_name: str, plugin_category: str, report: ReportCollector):
+        self.plugin_name = plugin_name
+        self.plugin_category = plugin_category
+        self.report_name = plugin_name
+        self.report_collector = report
+
+
+    @final
+    def run(self, df: pd.DataFrame, report: ReportCollector | None = None,) -> pd.DataFrame:
+        params = self._get_config_params(df)
+        if not params.get("enabled", True):
+            return df
+
+        if report is None:
+            report = self.report_collector
+
+        self.report_name = self._unique_plugin_name(report)
+
+        result = self._execute(df, report)
+
+        data = self._get_report_data(df, result, report)
+
+        report.add_report(self.plugin_category, self.report_name, self._report(data, report))
+        report.add_data(self.plugin_category, self.report_name, data)
+
+        return result
+
+    def _unique_plugin_name(self, report: ReportCollector) -> str:
+        name = self.plugin_name
+        count = 2
+
+        while report.exists(self.plugin_category, name):
+            name = f"{self.plugin_name}_{count}"
+            count += 1
+
+        return name
+
+    @abstractmethod
+    def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        pass
+
+    @abstractmethod
+    def _get_report_data(self, before: pd.DataFrame, after: pd.DataFrame, report: ReportCollector):
+        pass
+
+    @abstractmethod
+    def _report(self, data, report: ReportCollector):
+        pass
+
+    @abstractmethod
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        pass
+
+    def _get_config(self, df: pd.DataFrame) -> DandaConfig:
+        return df.dg.config
+
+    def _fmt(self, value):
+        if isinstance(value, int):
+            return f"{value:,}"
+        return f"{value:,.2f}".rstrip("0").rstrip(".")
+
+and the build we want to build configration from for example:
+import pandas as pd
+from danda.plugins.clean.clean_plugin import CleanPlugin
+from danda.plugins.report_collector import ReportCollector
+
+class DropDuplicatesPlugin(CleanPlugin):
+    def __init__(self, report: ReportCollector):
+        super().__init__("DropDuplicates", report)
+
+    def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
+        config = self._get_config_params(df)
+        ignore_index=config.get("ignore_index", False)
+        return df.drop_duplicates(ignore_index=ignore_index)
+
+    def _report(self, data, report: ReportCollector) -> str:
+        return f"Number of deleted rows: {data}"
+
+    def _get_report_data(self, before: pd.DataFrame, after: pd.DataFrame, report: ReportCollector):
+        return len(before) - len(after)
+
+    def _get_config_params(self, df: pd.DataFrame) -> dict:
+        config = self._get_config(df).cleaning
+        return {
+            "enabled": config.remove_duplicates,
+            "ignore_index": config.remove_duplicates_ignore_index
+        }

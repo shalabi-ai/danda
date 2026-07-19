@@ -4,6 +4,33 @@ from danda.plugins.report_collector import ReportCollector
 
 
 class EmptyRowsPlugin(CleanPlugin):
+    """
+    Removes rows that contain only missing (`NaN`) values from a pandas DataFrame. A row is removed only if every value in that row is missing. Rows containing at least one non-null value are preserved.
+
+    Plugin Configuration:
+    - remove_empty_rows
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "A": [1, None, 2, None],
+        "B": ["x", None, "y", None]
+    })
+
+    output:
+    pd.DataFrame({
+        "A": [1, 2],
+        "B": ["x", "y"]
+    }, index=[0, 2])
+
+    report:
+    {
+        "clean": {
+            "EmptyRowsPlugin": 2
+        }
+    }
+    """
     def __init__(self, report: ReportCollector):
         super().__init__("EmptyRowsPlugin", report)
 

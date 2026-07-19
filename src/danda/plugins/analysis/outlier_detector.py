@@ -2,6 +2,59 @@ import pandas as pd
 
 
 class OutlierDetector:
+    """
+    Detects outliers in a numeric pandas Series using one of three supported methods:
+
+    - **IQR (Interquartile Range):** Values outside the interval
+      `[Q1 - iqr_multiplier × IQR, Q3 + iqr_multiplier × IQR]`
+      are considered outliers.
+    - **Z-score:** Values outside
+      `[mean - zscore_threshold × std, mean + zscore_threshold × std]`
+      are considered outliers.
+    - **Modified Z-score:** Uses the median as the center while applying the standard deviation as the spread. Values outside
+      `[median - zscore_threshold × std, median + zscore_threshold × std]`
+      are considered outliers.
+
+    The detector returns:
+    - a boolean mask indicating which values are outliers,
+    - the calculated lower bound,
+    - the calculated upper bound.
+
+    The `outlier_graph()` helper generates a simple ASCII visualization showing the observed data range together with the calculated lower (LB) and upper (UB) outlier boundaries.
+
+    Configuration:
+    - method (`"iqr"`, `"zscore"`, or `"modified-zscore"`)
+    - iqr_multiplier
+    - zscore_threshold
+
+    Example:
+
+    input:
+    pd.Series([10, 12, 11, 13, 12, 100])
+
+    Assume the configuration is:
+    - method = "iqr"
+    - iqr_multiplier = 1.5
+    - zscore_threshold = 3.0
+
+    output:
+
+    mask:
+    pd.Series([False, False, False, False, False, True])
+
+    lower_bound:
+    8.5
+
+    upper_bound:
+    16.5
+
+    graph:
+    [
+        "10                                          100",
+        "<=====|----------------------------------------",
+        "      UB"
+    ]
+    """
 
     @staticmethod
     def detect(

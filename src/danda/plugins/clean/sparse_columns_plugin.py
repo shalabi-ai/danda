@@ -4,6 +4,42 @@ import pandas as pd
 
 
 class SparseColumnsPlugin(CleanPlugin):
+    """
+    Removes columns whose fraction of missing values is greater than or equal to the configured threshold. The missing-value fraction is calculated independently for each column as the number of missing values divided by the total number of rows. Columns with a missing-value fraction below the threshold are retained.
+
+    Plugin Configuration:
+    - sparse_columns_enabled
+    - sparse_columns_threshold
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "A": [1, 2, 3, 4],
+        "B": [None, None, 3, None],
+        "C": [10, 20, 30, 40],
+        "D": [None, None, None, None]
+    })
+
+    Assume the configuration is:
+    - sparse_columns_threshold = 0.75
+
+    output:
+    pd.DataFrame({
+        "A": [1, 2, 3, 4],
+        "C": [10, 20, 30, 40]
+    })
+
+    report:
+    {
+        "clean": {
+            "SparseColumnsPlugin": {
+                "columns_removed": 2,
+                "columns": ["B", "D"]
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector) -> None:
         super().__init__(

@@ -4,7 +4,40 @@ from danda.plugins.report_collector import ReportCollector
 
 class NumericTypePlugin(TypePlugin):
     """
-    Convert string columns containing numeric values to numeric dtype.
+    Converts string columns containing numeric values to a pandas numeric data type (`int64` or `float64`, depending on the data). A column is converted when the fraction of successfully parsed non-missing values is greater than or equal to the configured threshold. Values that cannot be parsed are converted to `NaN`.
+
+    Plugin Configuration:
+    - numeric_enabled
+    - numeric_threshold
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Age": ["25", "30", "35", None],
+        "Salary": ["50000.5", "62000", "71000.25", "80000"],
+        "Name": ["Alice", "Bob", "Charlie", "David"]
+    })
+
+    Assume the configuration is:
+    - numeric_threshold = 1.0
+
+    output:
+    pd.DataFrame({
+        "Age": [25.0, 30.0, 35.0, pd.NA],
+        "Salary": [50000.5, 62000.0, 71000.25, 80000.0],
+        "Name": ["Alice", "Bob", "Charlie", "David"]
+    })
+
+    report:
+    {
+        "types": {
+            "NumericTypePlugin": [
+                "Age",
+                "Salary"
+            ]
+        }
+    }
     """
 
     def __init__(self, report: ReportCollector) -> None:

@@ -35,6 +35,49 @@ def lower_case(name: str) -> str:
 
 
 class RenameColumnsPlugin(CleanPlugin):
+    """
+    Renames DataFrame columns according to the configured naming convention. Supported naming styles are `snake_case`, `camelCase`, and `lowercase`. If multiple columns would result in the same name after conversion, the plugin automatically appends a numeric suffix (for example, `_2`, `_3`) to ensure all column names remain unique.
+
+    Plugin Configuration:
+    - rename_column_enabled
+    - rename_column_style
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "First Name": ["Alice", "Bob"],
+        "Last-Name": ["Smith", "Jones"],
+        "Employee.ID": [101, 102],
+        "First_Name": ["A", "B"]
+    })
+
+    Assume the configuration is:
+    - rename_column_style = ColumnCase.SNAKE
+
+    output:
+    pd.DataFrame({
+        "first_name": ["Alice", "Bob"],
+        "last_name": ["Smith", "Jones"],
+        "employee_id": [101, 102],
+        "first_name_2": ["A", "B"]
+    })
+
+    report:
+    {
+        "clean": {
+            "RenameColumnsPlugin": {
+                "renamed": [
+                    "employee_id",
+                    "first_name",
+                    "first_name_2",
+                    "last_name"
+                ],
+                "count": 4
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector):
         super().__init__(

@@ -5,6 +5,62 @@ from danda.plugins.report_collector import ReportCollector
 
 
 class SparseRowsReportPlugin(AnalysisPlugin):
+    """
+    Identifies rows containing a high proportion of missing values without modifying the DataFrame. A row is reported when the fraction of missing values is greater than or equal to the configured threshold. The report includes the row index, the number of missing values, the total number of columns, and the percentage of missing values. Results are sorted by missing percentage (highest first) and limited to the configured maximum number of rows.
+
+    Plugin Configuration:
+    - sparse_rows_report_enabled
+    - sparse_rows_report_threshold
+    - sparse_rows_report_max_rows
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "A": [1, None, None, 4],
+        "B": [2, None, None, None],
+        "C": [3, None, 5, None],
+        "D": [4, None, None, 8]
+    })
+
+    Assume the configuration is:
+    - sparse_rows_report_threshold = 0.75
+    - sparse_rows_report_max_rows = 10
+
+    output:
+    pd.DataFrame({
+        "A": [1, None, None, 4],
+        "B": [2, None, None, None],
+        "C": [3, None, 5, None],
+        "D": [4, None, None, 8]
+    })
+
+    report:
+    {
+        "analysis": {
+            "SparseRowsReportPlugin": [
+                {
+                    "index": 1,
+                    "missing": 4,
+                    "total": 4,
+                    "percent": 100.0
+                },
+                {
+                    "index": 2,
+                    "missing": 3,
+                    "total": 4,
+                    "percent": 75.0
+                },
+                {
+                    "index": 3,
+                    "missing": 2,
+                    "total": 4,
+                    "percent": 50.0
+                }
+            ]
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector):
         super().__init__("SparseRowsReportPlugin", report)

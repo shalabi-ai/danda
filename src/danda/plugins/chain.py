@@ -6,6 +6,51 @@ from danda.plugins.report_collector import ReportCollector
 
 
 class ChainPlugin(Plugin):
+    """
+    Executes a sequence of plugins in the order they were added, passing the output of each plugin as the input to the next. If a plugin raises an exception, the error is recorded in the report and execution continues with the remaining plugins. After execution, the plugin reports the number of plugins executed, their names, and the change in DataFrame memory usage.
+
+    Plugin Configuration:
+    - None (always enabled)
+
+    Example:
+
+    Assume the chain contains the following plugins:
+    1. EmptyRowsPlugin
+    2. DropDuplicates
+    3. RenameColumnsPlugin
+
+    input:
+    pd.DataFrame({
+        "First Name": ["Alice", "Bob", "Bob", None],
+        "Age": [25, 30, 30, None]
+    })
+
+    output:
+    pd.DataFrame({
+        "first_name": ["Alice", "Bob"],
+        "age": [25.0, 30.0]
+    }, index=[0, 1])
+
+    report:
+    {
+        "chain": {
+            "ChainPlugin": {
+                "plugins_count": 3,
+                "plugin_names": [
+                    "EmptyRowsPlugin",
+                    "DropDuplicates",
+                    "RenameColumnsPlugin"
+                ],
+                "memory_usage": {
+                    "before": 396,
+                    "after": 270,
+                    "difference": -126,
+                    "percent": -31.8
+                }
+            }
+        }
+    }
+    """
     def __init__(self, plugins: Sequence[Plugin], report: ReportCollector):
         super().__init__("ChainPlugin", "chain", report)
 

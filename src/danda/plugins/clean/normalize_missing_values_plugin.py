@@ -4,6 +4,46 @@ import pandas as pd
 
 
 class NormalizeMissingValuesPlugin(CleanPlugin):
+    """
+    Normalizes user-defined representations of missing values by replacing matching string values with `pd.NA`. The plugin operates only on string columns and supports optional whitespace trimming and case-insensitive matching before comparing values. Existing missing values are preserved.
+
+    Plugin Configuration:
+    - normalize_enabled
+    - normalize_values
+    - normalize_strip_whitespace
+    - normalize_ignore_case
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": ["Alice", "N/A", "Bob", " unknown "],
+        "City": ["New York", "None", "London", "Paris"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    Assume the configuration is:
+    - normalize_values = ["N/A", "None", "Unknown"]
+    - normalize_strip_whitespace = True
+    - normalize_ignore_case = True
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", pd.NA, "Bob", pd.NA],
+        "City": ["New York", pd.NA, "London", "Paris"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    report:
+    {
+        "missing": {
+            "NormalizeMissingValuesPlugin": {
+                "Name": 2,
+                "City": 1
+            }
+        }
+    }
+    """
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("NormalizeMissingValuesPlugin", report)
 

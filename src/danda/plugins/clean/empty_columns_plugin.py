@@ -4,6 +4,35 @@ from danda.plugins.report_collector import ReportCollector
 
 
 class EmptyColumnsPlugin(CleanPlugin):
+    """
+    Removes columns that contain only missing (`NaN`) values from a pandas DataFrame. A column is removed only if every value in that column is missing. Columns containing at least one non-null value are preserved.
+
+    Plugin Configuration:
+    - remove_empty_columns
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "A": [1, 2, 3],
+        "B": [None, None, None],
+        "C": ["x", None, "z"],
+        "D": [None, None, None]
+    })
+
+    output:
+    pd.DataFrame({
+        "A": [1, 2, 3],
+        "C": ["x", None, "z"]
+    })
+
+    report:
+    {
+        "clean": {
+            "EmptyColumnsPlugin": 2
+        }
+    }
+    """
     def __init__(self, report: ReportCollector):
         super().__init__("EmptyColumnsPlugin", report)
 
