@@ -30,7 +30,7 @@ class TestColumnSummaryPlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        data = self.report.data["analysis"]["ColumnSummary"]
+        data = self.report.data["analysis"]["ColumnSummaryPlugin"]
 
         self.assertEqual(data["age"]["dtype"], "float64")
         self.assertEqual(data["age"]["missing"], 1)
@@ -47,7 +47,7 @@ class TestColumnSummaryPlugin(unittest.TestCase):
 
         self.plugin.run(df)
 
-        report = self.report.report["analysis"]["ColumnSummary"]
+        report = self.report.report["analysis"]["ColumnSummaryPlugin"]
 
         self.assertIn("Column Summary:", report)
         self.assertIn("a", report)

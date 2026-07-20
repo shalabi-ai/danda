@@ -55,7 +55,12 @@ class PluginDocumentationGenerator:
             if not plugins:
                 continue
 
+            #doc = ast.get_docstring(node)
             markdown = []
+            markdown.append(f"# {fn.name}")
+           # markdown.append("")
+            markdown.append(self._extract_function_doc(fn, fn.name))
+            markdown.append("")
 
             for plugin in plugins:
 
@@ -109,6 +114,19 @@ class PluginDocumentationGenerator:
 
         return result
 
+    def _extract_function_doc(
+        self,
+        fn: ast.FunctionDef,
+        function_name: str,
+    ) -> str | None:
+        for node in ast.walk(fn):
+            doc = ast.get_docstring(node)
+            return doc
+            #if isinstance(node, ast.ClassDef) and node.name == function_name:
+
+             #   return ast.get_docstring(node)
+
+        return None
     # ------------------------------------------------------------------ #
     # Plugin list extraction
     # ------------------------------------------------------------------ #
@@ -190,15 +208,17 @@ class PluginDocumentationGenerator:
                 if not doc:
                     return None
 
-                return self._convert_doc(doc)
+                return self._convert_doc(class_name, doc)
 
         return None
+
+
 
     # ------------------------------------------------------------------ #
     # Convert plugin documentation into markdown
     # ------------------------------------------------------------------ #
 
-    def _convert_doc(self, doc: str) -> str:
+    def _convert_doc(self, class_name: str, doc: str) -> str:
 
         description = ""
         configuration = ""
@@ -231,7 +251,7 @@ class PluginDocumentationGenerator:
         if m:
             example = m.group(1).strip()
 
-        return f"""## {self._title_from_doc(doc)}
+        return f"""## {class_name}
 
 {description}
 
