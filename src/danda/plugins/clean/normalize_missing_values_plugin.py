@@ -5,7 +5,8 @@ import pandas as pd
 
 class NormalizeMissingValuesPlugin(CleanPlugin):
     """
-    Normalizes user-defined representations of missing values by replacing matching string values with `pd.NA`. The plugin operates only on string columns and supports optional whitespace trimming and case-insensitive matching before comparing values. Existing missing values are preserved.
+    Normalizes user-defined representations of missing values by replacing matching string values with `pd.NA`. The plugin operates only on string columns and supports optional whitespace trimming and case-insensitive matching before comparing values.
+    Existing missing values are left unchanged; only matching string values are replaced with pd.NA.
 
     Plugin Configuration:
     - normalize_enabled

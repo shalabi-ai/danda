@@ -59,7 +59,9 @@ class PluginDocumentationGenerator:
             markdown = []
             markdown.append(f"# {fn.name}")
            # markdown.append("")
-            markdown.append(self._extract_function_doc(fn, fn.name))
+            doc = self._extract_function_doc(fn, fn.name)
+            if doc is not None:
+                markdown.append(self._extract_function_doc(fn, fn.name))
             markdown.append("")
 
             for plugin in plugins:

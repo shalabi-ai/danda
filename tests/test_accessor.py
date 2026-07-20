@@ -20,9 +20,20 @@ class AccessorTestCase(unittest.TestCase):
         p.dg.optimize()
         self.assertEqual(True, True)
 
+    def test_impute(self):
+        p = pd.DataFrame()
+        p.dg.impute()
+        self.assertEqual(True, True)
+
+    def test_analyze(self):
+        p = pd.DataFrame()
+        p.dg.analyze()
+        self.assertEqual(True, True)
+
     def test_report(self):
         p = pd.DataFrame()
-        p.dg.report
+        #p.dg.report
+        p.dg.clean().dg.optimize().dg.analyze().dg.impute().dg.report
         self.assertEqual(True, True)
 
 if __name__ == '__main__':

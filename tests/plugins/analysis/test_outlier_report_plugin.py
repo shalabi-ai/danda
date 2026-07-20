@@ -1,5 +1,6 @@
 import unittest
 
+import numpy as np
 import pandas as pd
 
 from danda.plugins.analysis.outlier_report_plugin import OutlierReportPlugin
@@ -21,15 +22,30 @@ class TestOutlierReportPlugin(unittest.TestCase):
 
         pd.testing.assert_frame_equal(result, df)
 
-    def test_detects_zscore_outliers(self):
-        config = pd.DataFrame().dg.config
-        config.analysis.outlier_method = "zscore"
+    def test_empty_dataframe(self):
+        df = pd.DataFrame({
+            "a": [None, None],
+            "b": [np.nan, np.nan],
+        })
 
+        result = self.plugin.run(df)
+
+        pd.testing.assert_frame_equal(result, df)
+        report = self.report.report["analysis"]["OutlierReport"]
+
+        self.assertEqual(
+            report,
+            "No outliers detected.",
+        )
+
+    def test_detects_zscore_outliers(self):
         df = pd.DataFrame(
             {
                 "value": [10] * 20 + [100],
             }
         )
+        config = df.dg.config
+        config.analysis.outlier_method = "zscore"
 
         df.attrs["danda_config"] = config
 
@@ -54,6 +70,9 @@ class TestOutlierReportPlugin(unittest.TestCase):
             "age": [10] * 20 + [100],
         })
 
+        config = df.dg.config
+        config.analysis.outlier_method = "iqr"
+
         self.plugin.run(df)
 
         data = self.report.data["analysis"]["OutlierReport"]
@@ -62,7 +81,7 @@ class TestOutlierReportPlugin(unittest.TestCase):
 
         age = data["age"]
 
-        self.assertEqual(age["method"], "MODIFIED-ZSCORE")
+        self.assertEqual(age["method"], "IQR")
         self.assertEqual(age["count"], 1)
         self.assertEqual(age["min"], 100)
         self.assertEqual(age["max"], 100)
