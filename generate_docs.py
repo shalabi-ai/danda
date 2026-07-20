@@ -7,7 +7,7 @@ def main():
     generator = PluginDocumentationGenerator(
         accessor_file=Path("./src/danda/accessor.py"),
         plugin_root=Path("./src/"),      # repository root
-        docs_dir=Path("docs/sccessor"),
+        docs_dir=Path("docs/accessor"),
     )
 
     generator.generate()
