@@ -87,7 +87,7 @@ class CategoryTypePlugin(TypePlugin):
 
     def _execute(self, df: pd.DataFrame, report: ReportCollector) -> pd.DataFrame:
         config = self._get_config_params(df)
-        threshold = config.get("threshold")
+        threshold = config.get("threshold", .10)
 
         result = df.copy()
 
@@ -104,7 +104,9 @@ class CategoryTypePlugin(TypePlugin):
             after: pd.DataFrame,
             report: ReportCollector,
     ):
-        return self._find_category_columns(before)
+        config = self._get_config_params(before)
+        threshold = config.get("threshold", .10)
+        return self._find_category_columns(before, threshold)
 
     def _report(self, data, report: ReportCollector) -> str:
         if not data:
