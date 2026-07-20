@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - improve-doc
 
 permissions:
   contents: write
@@ -24,6 +25,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.DOCS_PUSH_TOKEN }}
+
+      - name: Debug Git
+        run: |
+          git remote -v
+          git config --list --show-origin
+
       - name: Mark repository as safe
         run: |
           git config --global --add safe.directory "$GITHUB_WORKSPACE"
@@ -36,20 +44,13 @@ jobs:
         run: |
           python generate_docs.py
 
-      - name: Debug
-        run: |
-          pwd
-          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
-          ls -la
-          git status
-
       - name: Commit generated docs
         run: |
           pwd
           git status
           
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config user.name "mohammad shalabi"
+          git config user.email "shalabicloud@gmail.com"
 
           git add docs/accessor
 
