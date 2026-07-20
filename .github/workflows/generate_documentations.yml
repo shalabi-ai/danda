@@ -33,8 +33,18 @@ jobs:
         run: |
           python generate_docs.py
 
+      - name: Debug
+        run: |
+          pwd
+          echo "GITHUB_WORKSPACE=$GITHUB_WORKSPACE"
+          ls -la
+          git status
+
       - name: Commit generated docs
         run: |
+          pwd
+          git status
+          
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
