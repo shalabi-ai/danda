@@ -5,7 +5,7 @@ from danda.plugins.report_collector import ReportCollector
 
 class EmptyRowsPlugin(CleanPlugin):
     """
-    Removes rows that contain only missing (`NaN`) values from a pandas DataFrame. A row is removed only if every value in that row is missing. Rows containing at least one non-null value are preserved.
+    Removes rows that contain only missing values (NaN, pd.NA, etc.) from a pandas DataFrame. A row is removed only if every value in that row is missing. Rows containing at least one non-null value are preserved.
 
     Plugin Configuration:
     - remove_empty_rows

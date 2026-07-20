@@ -50,7 +50,7 @@ class DandaAccessor:
         consistency without attempting to infer missing information or modify the
         semantic meaning of the data.
 
-        The following operations are performed:
+        The operations are applied sequentially in the order listed below:
 
         - Rename columns using the configured naming convention.
         - Trim leading and trailing whitespace from string values.
@@ -65,7 +65,7 @@ class DandaAccessor:
         Returns
         -------
         pandas.DataFrame
-            A cleaned copy of the DataFrame.
+           Returns a cleaned copy of the DataFrame; the original DataFrame is not modified.
 
         Notes
         -----

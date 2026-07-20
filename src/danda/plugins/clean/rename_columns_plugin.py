@@ -36,8 +36,9 @@ def lower_case(name: str) -> str:
 
 class RenameColumnsPlugin(CleanPlugin):
     """
-    Renames DataFrame columns according to the configured naming convention. Supported naming styles are `snake_case`, `camelCase`, and `lowercase`. If multiple columns would result in the same name after conversion, the plugin automatically appends a numeric suffix (for example, `_2`, `_3`) to ensure all column names remain unique.
-
+    Renames DataFrame columns according to the configured naming convention. Supported naming styles are `snake_case`, `camelCase`, and `lowercase`.
+    If multiple columns resolve to the same name after conversion, numeric suffixes (_2, _3, ...) are appended to keep column names unique.
+    
     Plugin Configuration:
     - rename_column_enabled
     - rename_column_style

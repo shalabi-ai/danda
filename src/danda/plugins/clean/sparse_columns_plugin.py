@@ -5,7 +5,10 @@ import pandas as pd
 
 class SparseColumnsPlugin(CleanPlugin):
     """
-    Removes columns whose fraction of missing values is greater than or equal to the configured threshold. The missing-value fraction is calculated independently for each column as the number of missing values divided by the total number of rows. Columns with a missing-value fraction below the threshold are retained.
+    Remove columns whose fraction of missing values is greater than or equal to the configured threshold.
+    The missing-value fraction is calculated independently for each column as the number of missing values divided by
+    the total number of rows. Columns with a missing-value fraction below the threshold are retained.
+
 
     Plugin Configuration:
     - sparse_columns_enabled
