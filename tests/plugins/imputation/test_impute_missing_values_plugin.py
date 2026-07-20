@@ -392,14 +392,9 @@ class TestImputeMissingValuesPlugin(unittest.TestCase):
 
         self.assertEqual(expected_data, self.report.data)
 
-        expected_report = {
-            "imputation": {
-                "ImputeMissingValuesPlugin":
-                    "Filled missing values:\n"
-                    "- age: median (1)\n"
-                    "- city: mode (1)"
-            }
-        }
+        expected_report = {'imputation': {'ImputeMissingValuesPlugin': 'Filled missing values:\n'
+                                             '- age: median (1) (33.3%)\n'
+                                             '- city: mode (1) (33.3%)'}}
 
         self.assertEqual(expected_report, self.report.report)
 

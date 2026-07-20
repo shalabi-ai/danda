@@ -255,6 +255,7 @@ class ImputeMissingValuesPlugin(ImputePlugin):
             report: ReportCollector,
     ):
         result = {}
+        result["rows"] = len(before)
 
         for column in before.columns:
             count = before[column].isna().sum()
@@ -281,6 +282,8 @@ class ImputeMissingValuesPlugin(ImputePlugin):
         return result
 
     def _report(self, data, report: ReportCollector):
+        rows = data['rows']
+        del data["rows"]
 
         if not data:
             return "No missing values imputed."
@@ -288,8 +291,10 @@ class ImputeMissingValuesPlugin(ImputePlugin):
         lines = ["Filled missing values:"]
 
         for column, info in data.items():
+            count = info["filled"]
+            percent = count * 100 / rows
             lines.append(
-                f"- {column}: {info['strategy']} ({info['filled']})"
+                f"- {column}: {info['strategy']} ({count}) ({percent:.1f}%)"
             )
 
         return "\n".join(lines)
