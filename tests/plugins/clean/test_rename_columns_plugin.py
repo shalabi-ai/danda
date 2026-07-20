@@ -72,6 +72,22 @@ class TestRenameColumnsPlugin(unittest.TestCase):
             list(result.columns),
             ['customerName', 'orderDate', 'customerName2', 'orderDate2', 'customerName3', 'orderDate3'],
         )
+
+    def test_execute_renames_columns_to_undefined(self):
+        df = pd.DataFrame(
+            {
+                "Customer Name": ["Alice"],
+                "Order Date": [1],
+            }
+        )
+
+        df.dg.config.cleaning.rename_column_enabled = True
+        df.dg.config.cleaning.rename_column_style = "undefined"
+
+        result = self.plugin.run(df)
+
+        pd.testing.assert_frame_equal(result, df)
+
     def test_execute_renames_columns_to_camel_case(self):
         df = pd.DataFrame(
             {
