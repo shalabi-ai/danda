@@ -1,0 +1,316 @@
+# `danda` Documentation
+
+`danda` provides a complete workflow for preparing pandas DataFrames for analysis. Each feature is designed to be safe, deterministic, and configurable while integrating seamlessly with the pandas API.
+
+---
+
+## 🧹 Cleaning
+
+Remove common data quality issues that are almost always undesirable without changing the meaning of your data.
+
+Features include:
+
+- Remove completely empty rows
+- Remove completely empty columns
+- Remove duplicate rows
+- Trim leading and trailing whitespace
+- Normalize common missing values
+- Preserve DataFrame metadata and attributes
+- Generate detailed cleaning reports
+
+```python
+df = df.dg.clean()
+```
+
+Example report:
+
+```text
+Clean
+├── Removed 3 empty rows
+├── Removed 1 empty column
+├── Removed 12 duplicate rows
+└── Trimmed whitespace in 4 columns
+```
+
+---
+
+## ⚡ Optimization
+
+Automatically infer more appropriate data types and reduce memory usage.
+
+Features include:
+
+- Convert numeric strings to numeric types
+- Detect boolean columns
+- Detect datetime columns
+- Convert low-cardinality string columns to categorical types
+- Downcast numeric types to reduce memory usage
+- Preserve data while improving performance
+- Generate optimization reports
+
+```python
+df = df.dg.optimize()
+```
+
+Example report:
+
+```text
+Optimize
+├── Converted 5 columns to numeric
+├── Converted 2 columns to datetime
+├── Converted 3 columns to category
+└── Reduced memory usage by 68%
+```
+
+---
+
+## 📊 Analysis
+
+Inspect your data without modifying it.
+
+Analysis plugins generate objective reports that help identify potential data quality issues before deciding how to clean or transform your data.
+
+Included analyses:
+
+- Column summaries
+- Missing value summaries
+- Missing value reports
+- Potential missing values
+- Suspicious missing values
+- Sparse rows
+- Constant columns
+- Potential boolean columns
+- Statistical outlier detection
+
+```python
+df = df.dg.analyze()
+```
+
+Example report:
+
+```text
+Analysis
+├── Missing values detected
+├── Constant columns detected
+├── Sparse rows detected
+└── Outliers detected
+```
+
+Analysis plugins **never modify** the DataFrame.
+
+---
+
+## 🩹 Imputation
+
+Fill missing values using configurable imputation strategies.
+
+Unlike cleaning and optimization, imputation requires user intent because there is no universally correct way to replace missing data.
+
+Examples include:
+
+- Mean
+- Median
+- Mode
+- Constant values
+- Forward fill
+- Backward fill
+
+```python
+df = df.dg.impute()
+```
+
+All imputation operations generate reports describing the strategy used and the values that were replaced.
+
+---
+
+## 📄 Reports
+
+Most `danda` operations generate human-readable reports describing what was detected or changed.
+
+Reports are attached to the DataFrame and remain available throughout your workflow.
+
+```python
+df = (
+    df
+    .dg.clean()
+    .dg.optimize()
+    .dg.analyze()
+)
+
+print(df.dg.report)
+```
+
+Available reports include:
+
+- Cleaning reports
+- Optimization reports
+- Analysis reports
+- Imputation reports
+
+This makes preprocessing steps transparent, reproducible, and easy to review.
+
+---
+
+## ⚙️ Configuration
+
+Every DataFrame has its own configuration, allowing you to customize `danda` without affecting other DataFrames.
+
+```python
+config = df.dg.config
+
+config.clean.empty_rows_enabled = False
+config.types.datetime_enabled = False
+config.analysis.outlier_method = "zscore"
+```
+
+Configuration is organized into feature-specific sections, including:
+
+- Cleaning
+- Type Optimization
+- Analysis
+- Imputation
+
+Because configuration is stored with the DataFrame, different DataFrames can use different settings within the same application.
+
+```python
+sales.dg.config.analysis.outlier_method = "iqr"
+
+employees.dg.config.analysis.outlier_method = "zscore"
+```
+
+This makes `danda` flexible enough for a wide range of datasets while keeping preprocessing pipelines concise, predictable, and reproducible.
+
+---
+
+## The `.dg` Accessor
+
+`danda` integrates seamlessly with pandas by registering the `.dg` DataFrame accessor. Once `danda` is imported, every pandas `DataFrame` gains access to its functionality without requiring wrapper classes or custom DataFrame types.
+
+```python
+import pandas as pd
+import danda
+
+df = pd.read_csv("employees.csv")
+
+df.dg.clean()
+```
+
+All `danda` functionality is accessed through `.dg`, providing a consistent and discoverable API.
+
+### Data Preparation
+
+Prepare your DataFrame for analysis using cleaning and optimization plugins.
+
+| Method | Description |
+|---------|-------------|
+| `clean()` | Apply safe, deterministic cleaning operations. |
+| `optimize()` | Infer more appropriate data types and reduce memory usage. |
+| `analyze()` | Generate data quality reports without modifying the data. |
+| `impute()` | Fill missing values using configurable imputation strategies. |
+
+Example:
+
+```python
+df = (
+    pd.read_csv("employees.csv")
+      .dg.clean()
+      .dg.optimize()
+      .dg.analyze()
+)
+```
+
+---
+
+### Reports
+
+Access reports generated by `danda` operations.
+
+```python
+reports = df.dg.report
+
+print(reports["clean"])
+print(reports["optimize"])
+print(reports["analysis"])
+```
+
+Reports are stored in the DataFrame's metadata, allowing them to remain available throughout your workflow.
+
+---
+
+### Actions
+
+Some analysis plugins identify issues but intentionally do not modify the data. The `.actions` accessor provides explicit operations for handling those cases.
+
+Example:
+
+```python
+df = df.dg.actions.handle_outliers(
+    columns=["Age"],
+    strategy="clip",
+)
+```
+
+Available strategies include:
+
+- `"remove"` — Remove rows containing outliers.
+- `"nan"` — Replace outliers with `NaN`.
+- `"clip"` — Replace outliers with the calculated lower or upper bound.
+
+Actions are always **explicit** and are never performed automatically.
+
+---
+
+### Configuration
+
+Each DataFrame has its own configuration, allowing behavior to be customized independently.
+
+```python
+config = df.dg.config
+
+config.analysis.outlier_method = "zscore"
+config.types.datetime_enabled = False
+```
+
+Configuration is preserved with the DataFrame and applies only to subsequent `danda` operations performed on that DataFrame.
+
+---
+
+### Memory Comparison
+
+Compare the memory usage of two DataFrames.
+
+```python
+before = pd.read_csv("employees.csv")
+
+after = (
+    before
+    .dg.clean()
+    .dg.optimize()
+)
+
+comparison = before.dg.compare_memory(after)
+
+print(comparison)
+```
+
+This is useful for measuring the impact of type optimization and memory reduction.
+
+---
+
+### Why an Accessor?
+
+Using a pandas accessor keeps `danda` fully integrated with the pandas ecosystem.
+
+Instead of introducing new wrapper objects or APIs, `danda` extends the familiar `DataFrame` interface:
+
+```python
+df.dg.clean()
+df.dg.optimize()
+df.dg.analyze()
+df.dg.impute()
+```
+
+This makes `danda` easy to learn, easy to compose with existing pandas code, and simple to incorporate into existing data processing pipelines.
+
+
+

@@ -1,6 +1,11 @@
 from danda.configuration.config_section import ConfigSection
 from dataclasses import dataclass, field
+from enum import Enum
 
+class ColumnCase(str, Enum):
+    SNAKE = "snake_case"
+    CAMEL = "camelCase"
+    LOWER = "lower"
 
 @dataclass
 class CleaningConfig(ConfigSection):
@@ -86,5 +91,22 @@ class CleaningConfig(ConfigSection):
                 "Columns with a higher fraction are removed."
             ),
             "feature": "Sparse Columns",
+        },
+    )
+
+    ## Rename column plugin
+    rename_column_enabled: bool = field(
+        default=False,
+        metadata={
+            "description": "Automatically rename DataFrame columns.",
+            "feature": "Column Renaming",
+        },
+    )
+
+    rename_column_style: ColumnCase = field(
+        default=ColumnCase.SNAKE,
+        metadata={
+            "description": "Naming convention applied to column names.",
+            "feature": "Column Renaming",
         },
     )

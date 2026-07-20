@@ -49,7 +49,7 @@ class EmptyRowsTestCase(unittest.TestCase):
         expected_data = {'clean': {'EmptyRowsPlugin': 0}}
         self.assertEqual(expected_data, report.data)
 
-        expected_report = {'clean': {'EmptyRowsPlugin': 'Number of deleted rows: 0'}}
+        expected_report = {'clean': {'EmptyRowsPlugin': 'No empty rows deleted.'}}
         self.assertEqual(expected_report, report.report)
 
 if __name__ == '__main__':

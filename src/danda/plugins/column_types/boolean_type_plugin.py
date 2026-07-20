@@ -10,6 +10,41 @@ from pandas.api.types import (
 
 
 class BooleanTypePlugin(TypePlugin):
+    """
+    Converts columns identified as containing boolean values to pandas' nullable `boolean` data type. Supported boolean representations include `True`, `False`, `"true"`, `"false"`, `"1"`, `"0"`, `1`, and `0`. String values are matched case-insensitively before conversion, and missing values are preserved.
+
+    Plugin Configuration:
+    - boolean_enabled
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "IsActive": ["True", "false", "1", "0", None],
+        "Verified": [1, 0, 1, 0, None],
+        "Name": ["Alice", "Bob", "Charlie", "David", "Eve"]
+    })
+
+    output:
+    pd.DataFrame({
+        "IsActive": [True, False, True, False, pd.NA],
+        "Verified": [True, False, True, False, pd.NA],
+        "Name": ["Alice", "Bob", "Charlie", "David", "Eve"]
+    }).astype({
+        "IsActive": "boolean",
+        "Verified": "boolean"
+    })
+
+    report:
+    {
+        "types": {
+            "BooleanTypePlugin": [
+                "IsActive",
+                "Verified"
+            ]
+        }
+    }
+    """
     _mapping = {
         True: True,
         False: False,
@@ -54,7 +89,7 @@ class BooleanTypePlugin(TypePlugin):
 
     def _report(self, data, report: ReportCollector) -> str:
         if len(data) == 0:
-            return "no columns converted"
+            return "No columns converted"
         return f"convert these columns to boolean {', '.join(data)}"
 
     def _get_config_params(self, df: pd.DataFrame) -> dict:

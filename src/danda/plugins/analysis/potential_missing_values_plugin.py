@@ -4,6 +4,56 @@ from danda.plugins.analysis.analysis_plugin import AnalysisPlugin
 from danda.plugins.report_collector import ReportCollector
 
 class PotentialMissingValuesPlugin(AnalysisPlugin):
+    """
+    Identifies string values that are likely intended to represent missing data without modifying the DataFrame. The plugin searches string columns for user-configured placeholder values (such as `"N/A"`, `"Unknown"`, or `"None"`), with optional whitespace trimming and case-insensitive matching. The report lists each column containing potential missing values together with the number of occurrences of each configured placeholder.
+
+    Plugin Configuration:
+    - empty_value_enabled
+    - empty_value_values
+    - empty_value_strip_whitespace
+    - empty_value_ignore_case
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": ["Alice", "N/A", "Bob", " unknown "],
+        "City": ["London", "None", "Paris", "Berlin"],
+        "Department": ["HR", "IT", "Unknown", "HR"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    Assume the configuration is:
+    - empty_value_values = ["N/A", "None", "Unknown"]
+    - empty_value_strip_whitespace = True
+    - empty_value_ignore_case = True
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", "N/A", "Bob", " unknown "],
+        "City": ["London", "None", "Paris", "Berlin"],
+        "Department": ["HR", "IT", "Unknown", "HR"],
+        "Age": [25, 30, 35, 40]
+    })
+
+    report:
+    {
+        "analysis": {
+            "PotentialMissingValuesPlugin": {
+                "Name": {
+                    "N/A": 1,
+                    "Unknown": 1
+                },
+                "City": {
+                    "None": 1
+                },
+                "Department": {
+                    "Unknown": 1
+                }
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("PotentialMissingValuesPlugin", report)

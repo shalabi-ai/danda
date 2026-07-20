@@ -61,3 +61,8 @@ class Plugin(ABC):
 
     def _get_config(self, df: pd.DataFrame) -> DandaConfig:
         return df.dg.config
+
+    def _fmt(self, value):
+        if isinstance(value, int):
+            return f"{value:,}"
+        return f"{value:,.2f}".rstrip("0").rstrip(".")

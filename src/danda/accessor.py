@@ -1,7 +1,11 @@
 import pandas as pd
 from danda.configuration.danda_configuration import DandaConfig
+from danda.danda_action_accessor import DandaActionAccessor
+from danda.plugins.analysis.column_summary_plugin import ColumnSummaryPlugin
+from danda.plugins.analysis.constant_columns_plugin import ConstantColumnsPlugin
 from danda.plugins.analysis.missing_values_report_plugin import MissingValuesReportPlugin
 from danda.plugins.analysis.missing_values_summary_plugin import MissingValuesSummaryPlugin
+from danda.plugins.analysis.outlier_report_plugin import OutlierReportPlugin
 from danda.plugins.analysis.potential_missing_values_plugin import PotentialMissingValuesPlugin
 from danda.plugins.analysis.sparse_rows_report_plugin import SparseRowsReportPlugin
 from danda.plugins.analysis.suspicious_missing_values_plugin import SuspiciousMissingValuesPlugin
@@ -11,6 +15,7 @@ from danda.plugins.clean.empty_columns_plugin import EmptyColumnsPlugin
 from danda.plugins.clean.empty_rows_plugin import EmptyRowsPlugin
 from danda.plugins.clean.empty_spaces import EmptySpacesPlugin
 from danda.plugins.clean.normalize_missing_values_plugin import NormalizeMissingValuesPlugin
+from danda.plugins.clean.rename_columns_plugin import RenameColumnsPlugin
 from danda.plugins.clean.sparse_columns_plugin import SparseColumnsPlugin
 from danda.plugins.clean.sparse_rows_plugin import SparseRowsPlugin
 from danda.plugins.column_types.boolean_type_plugin import BooleanTypePlugin
@@ -37,8 +42,50 @@ class DandaAccessor:
         self._df = pandas_obj
 
     def clean(self):
+        """
+        Clean a DataFrame using deterministic, low-risk transformations.
+
+        The cleaning pipeline performs operations that are considered safe and
+        objective for almost all datasets. These transformations improve data
+        consistency without attempting to infer missing information or modify the
+        semantic meaning of the data.
+
+        The following operations are performed:
+
+        - Rename columns using the configured naming convention.
+        - Trim leading and trailing whitespace from string values.
+        - Normalize common missing-value representations (for example,
+          "", "NA", "N/A", "null") to ``pd.NA``.
+        - Remove sparse columns according to the configured threshold.
+        - Remove sparse rows according to the configured threshold.
+        - Remove completely empty rows.
+        - Remove completely empty columns.
+        - Remove duplicate rows.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A cleaned copy of the DataFrame.
+
+        Notes
+        -----
+        A cleaning report is stored in::
+
+            df.attrs["danda_clean_report"]
+
+        and can be accessed using::
+
+            df.dg.report["clean"]
+
+        Examples
+        --------
+        >>> df = pd.read_csv("customers.csv")
+        >>> df = df.dg.clean()
+        >>> df.dg.report["clean"]
+        """
         report_collector = ReportCollector()
         plugins = [
+            RenameColumnsPlugin(report_collector),
             EmptySpacesPlugin(report_collector),
             NormalizeMissingValuesPlugin(report_collector),
             SparseColumnsPlugin(report_collector),
@@ -57,6 +104,43 @@ class DandaAccessor:
         return result
 
     def optimize(self):
+        """
+        Optimize column data types for analysis and memory efficiency.
+
+        The optimization pipeline automatically detects appropriate pandas
+        dtypes and converts columns when the conversion is considered safe.
+
+        The following conversions are performed:
+
+        - Convert boolean-like values to boolean dtype.
+        - Convert datetime-like values to datetime dtype.
+        - Convert numeric strings to numeric dtypes.
+        - Convert low-cardinality object columns to categorical dtype.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame with optimized column dtypes.
+
+        Notes
+        -----
+        Existing values are preserved whenever possible. Columns are converted
+        only when they satisfy the configured detection thresholds.
+
+        An optimization report is stored in::
+
+            df.attrs["danda_optimize_report"]
+
+        and can be accessed using::
+
+            df.dg.report["optimize"]
+
+        Examples
+        --------
+        >>> df = pd.read_csv("sales.csv")
+        >>> df = df.dg.optimize()
+        >>> df.dtypes
+        """
         report_collector = ReportCollector()
         plugins = [
             BooleanTypePlugin(report_collector),
@@ -75,14 +159,59 @@ class DandaAccessor:
         return result
 
     def analyze(self):
+        """
+        Analyze the DataFrame and generate data quality reports.
+
+        This method performs non-destructive analysis only. The returned
+        DataFrame is unchanged, but a collection of analysis reports is
+        attached to the DataFrame metadata.
+
+        The analysis includes:
+
+        - Column summary statistics.
+        - Missing-value summary.
+        - Detailed missing-value report.
+        - Detection of potential missing-value placeholders.
+        - Detection of suspicious missing-value patterns.
+        - Sparse row analysis.
+        - Detection of potential boolean columns.
+        - Detection of constant columns.
+        - Outlier analysis.
+
+        Returns
+        -------
+        pandas.DataFrame
+            The original DataFrame with attached analysis reports.
+
+        Notes
+        -----
+        No values, columns, or dtypes are modified.
+
+        The analysis report is stored in::
+
+            df.attrs["danda_analyze_report"]
+
+        and can be accessed using::
+
+            df.dg.report["analyze"]
+
+        Examples
+        --------
+        >>> df = pd.read_csv("customers.csv")
+        >>> df = df.dg.analyze()
+        >>> df.dg.report["analyze"]
+        """
         report_collector = ReportCollector()
         plugins = [
+            ColumnSummaryPlugin(report_collector),
             MissingValuesSummaryPlugin(report_collector),
             MissingValuesReportPlugin(report_collector),
             PotentialMissingValuesPlugin(report_collector),
             SuspiciousMissingValuesPlugin(report_collector),
             SparseRowsReportPlugin(report_collector),
             PotentialBooleanTypePlugin(report_collector),
+            ConstantColumnsPlugin(report_collector),
+            OutlierReportPlugin(report_collector),
             #PotentialDateTimeTypePlugin(report_collector),
             #PotentialCategoryTypePlugin(report_collector),
             #PotentialMissingValuesPlugin(report_collector),
@@ -100,6 +229,37 @@ class DandaAccessor:
         return result
 
     def impute(self):
+        """
+        Impute missing values using the configured imputation strategy.
+
+        Missing values are filled according to the configuration defined in
+        ``df.dg.config``. The imputation strategy may vary depending on the
+        column type and user configuration.
+
+        Returns
+        -------
+        pandas.DataFrame
+            A DataFrame with imputed missing values.
+
+        Notes
+        -----
+        The imputation behavior is configurable and may use different
+        strategies for numeric, categorical, boolean, or datetime columns.
+
+        An imputation report is stored in::
+
+            df.attrs["danda_impute_report"]
+
+        and can be accessed using::
+
+            df.dg.report["impute"]
+
+        Examples
+        --------
+        >>> df = pd.read_csv("customers.csv")
+        >>> df = df.dg.impute()
+        >>> df.dg.report["impute"]
+        """
         report_collector = ReportCollector()
         plugins = [
             ImputeMissingValuesPlugin(report_collector)
@@ -141,3 +301,7 @@ class DandaAccessor:
             self._df.attrs["danda_config"] = DandaConfig()
 
         return self._df.attrs["danda_config"]
+
+    @property
+    def action(self) -> DandaActionAccessor:
+        return DandaActionAccessor(self._df)

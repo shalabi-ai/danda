@@ -4,6 +4,35 @@ from danda.plugins.optimization.information import DataFrameInformation
 from danda.plugins.report_collector import ReportCollector
 
 class EmptySpacesPlugin(CleanPlugin):
+    """
+    Removes leading and trailing whitespace from all string columns in a pandas DataFrame. Only string columns are processed, while non-string columns remain unchanged. The report lists the columns in which at least one value was modified.
+
+    Plugin Configuration:
+    - strip_whitespace
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": [" Alice ", "Bob", "  Charlie"],
+        "City": [" New York", "London ", " Paris "],
+        "Age": [25, 30, 35]
+    })
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", "Bob", "Charlie"],
+        "City": ["New York", "London", "Paris"],
+        "Age": [25, 30, 35]
+    })
+
+    report:
+    {
+        "clean": {
+            "EmptySpacesPlugin": ["Name", "City"]
+        }
+    }
+    """
     def __init__(self, report: ReportCollector):
         super().__init__("EmptySpacesPlugin", report)
 

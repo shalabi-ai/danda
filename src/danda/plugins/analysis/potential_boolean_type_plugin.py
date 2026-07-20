@@ -7,6 +7,40 @@ from pandas.api.types import (
 )
 
 class PotentialBooleanTypePlugin(AnalysisPlugin):
+    """
+    Identifies columns that may represent boolean values but are not in a recognized boolean format. A column is reported when it contains exactly two distinct non-missing values and those values are not already one of the supported boolean representations (`True`, `False`, `0`, `1`, `"true"`, `"false"`, `"0"`, or `"1"`). The plugin performs analysis only and does not modify the input DataFrame.
+
+    Plugin Configuration:
+    - potential_boolean_enabled
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Subscribed": ["Yes", "No", "Yes", "No"],
+        "Approved": ["Y", "N", "Y", "N"],
+        "IsActive": ["true", "false", "true", "false"],
+        "Status": ["Open", "Closed", "Pending", "Open"]
+    })
+
+    output:
+    pd.DataFrame({
+        "Subscribed": ["Yes", "No", "Yes", "No"],
+        "Approved": ["Y", "N", "Y", "N"],
+        "IsActive": ["true", "false", "true", "false"],
+        "Status": ["Open", "Closed", "Pending", "Open"]
+    })
+
+    report:
+    {
+        "analysis": {
+            "PotentialBooleanTypePlugin": {
+                "Subscribed": ["Yes", "No"],
+                "Approved": ["Y", "N"]
+            }
+        }
+    }
+    """
     def __init__(self, report: ReportCollector) -> None:
         super().__init__("PotentialBooleanTypePlugin", report)
 

@@ -4,6 +4,44 @@ import pandas as pd
 
 
 class MissingValuesSummaryPlugin(AnalysisPlugin):
+    """
+    Provides an overall summary of missing values in the DataFrame without modifying the data. The summary includes the total number of rows and columns, the number and percentage of missing cells, the number of columns containing missing values, the number of rows containing missing values, and the number and percentage of complete rows.
+
+    Plugin Configuration:
+    - None (always enabled)
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Name": ["Alice", None, "Charlie", "David"],
+        "Age": [25, None, 35, 40],
+        "City": ["London", "Paris", None, None]
+    })
+
+    output:
+    pd.DataFrame({
+        "Name": ["Alice", None, "Charlie", "David"],
+        "Age": [25, None, 35, 40],
+        "City": ["London", "Paris", None, None]
+    })
+
+    report:
+    {
+        "analysis": {
+            "MissingValuesSummaryPlugin": {
+                "rows": 4,
+                "columns": 3,
+                "missing_cells": 4,
+                "missing_percent": 33.3,
+                "columns_with_missing": 3,
+                "rows_with_missing": 3,
+                "complete_rows": 1,
+                "complete_rows_percent": 25.0
+            }
+        }
+    }
+    """
 
     def __init__(self, report: ReportCollector):
         super().__init__("MissingValuesSummaryPlugin", report)

@@ -5,7 +5,45 @@ from danda.plugins.report_collector import ReportCollector
 
 class CategoryTypePlugin(TypePlugin):
     """
-    Convert low-cardinality columns to pandas category dtype.
+    Converts low-cardinality, non-numeric columns to the pandas `category` data type. A column is considered categorical when the ratio of unique non-missing values to the total number of rows is less than or equal to the configured threshold. Columns that are already boolean, datetime, categorical, or fully numeric are excluded.
+
+    Plugin Configuration:
+    - category_enabled
+    - category_threshold
+
+    Example:
+
+    input:
+    pd.DataFrame({
+        "Color": ["Red", "Blue", "Red", "Blue", "Red"],
+        "Department": ["HR", "IT", "HR", "IT", "HR"],
+        "Name": ["Alice", "Bob", "Charlie", "David", "Eve"],
+        "Age": [25, 30, 35, 40, 45]
+    })
+
+    Assume the configuration is:
+    - category_threshold = 0.5
+
+    output:
+    pd.DataFrame({
+        "Color": ["Red", "Blue", "Red", "Blue", "Red"],
+        "Department": ["HR", "IT", "HR", "IT", "HR"],
+        "Name": ["Alice", "Bob", "Charlie", "David", "Eve"],
+        "Age": [25, 30, 35, 40, 45]
+    }).astype({
+        "Color": "category",
+        "Department": "category"
+    })
+
+    report:
+    {
+        "types": {
+            "CategoryTypePlugin": [
+                "Color",
+                "Department"
+            ]
+        }
+    }
     """
 
     def __init__(self, report: ReportCollector):
@@ -32,6 +70,11 @@ class CategoryTypePlugin(TypePlugin):
                     or pd.api.types.is_datetime64_any_dtype(df[column])
                     or pd.api.types.is_categorical_dtype(df[column])
             ):
+                continue
+
+            converted = pd.to_numeric(df[column].dropna(), errors="coerce")
+            if converted.notna().mean() >= 1.0:
+                # This is really a numeric column.
                 continue
 
             unique_count = df[column].nunique(dropna=True)

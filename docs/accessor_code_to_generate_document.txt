@@ -1,0 +1,24 @@
+write a python function or class that will read the accessor.py extract the plugin list from functions in the file.
+if the function does not include a plugin list ignore the function.
+for every function it will generate a github markub file called function.md under the docs directory. the file will looks like
+
+## plugin name
+plugin description
+
+### Configuration
+plugin configuration
+
+
+### Example
+- input
+input
+
+- output
+output
+
+- report
+report
+
+
+The information in every plugin section will be found under the documentation section( found between """ and """ after class plugin name:  for the plugin)
+
