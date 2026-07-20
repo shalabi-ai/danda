@@ -105,6 +105,34 @@ class TestCategoryTypePlugin(unittest.TestCase):
             ["col"]
         )
 
+    def test_threshold_df(self):
+        df = pd.DataFrame({
+            "col": [f"value_{i % 11}" for i in range(100)]
+        })
+
+        self.plugin.run(df)
+
+        expected_data = {'types': {'CategoryTypePlugin': []}}
+        self.assertEqual(expected_data, self.report.data)
+
+        expected_report = {'types': {'CategoryTypePlugin': 'No category columns detected.'}}
+        self.assertEqual(expected_report, self.report.report)
+
+        self.report = ReportCollector()
+        self.plugin = CategoryTypePlugin(self.report)
+        df.dg.config.types.category_threshold = 0.11
+        self.plugin.run(df)
+
+        expected_data = {"types": {"CategoryTypePlugin": ['col']}}
+        self.assertEqual(expected_data, self.report.data)
+
+        expected_report = {
+            "types": {
+                "CategoryTypePlugin": "Converted the following columns to category: col"
+            }
+        }
+        self.assertEqual(expected_report, self.report.report)
+
     def test_empty_dataframe(self):
         df = pd.DataFrame()
 

@@ -7,7 +7,7 @@ objective for almost all datasets. These transformations improve data
 consistency without attempting to infer missing information or modify the
 semantic meaning of the data.
 
-The following operations are performed:
+The operations are applied sequentially in the order listed below:
 
 - Rename columns using the configured naming convention.
 - Trim leading and trailing whitespace from string values.
@@ -22,7 +22,7 @@ The following operations are performed:
 Returns
 -------
 pandas.DataFrame
-    A cleaned copy of the DataFrame.
+   Returns a cleaned copy of the DataFrame; the original DataFrame is not modified.
 
 Notes
 -----
@@ -44,7 +44,8 @@ Examples
 
 ## RenameColumnsPlugin
 
-Renames DataFrame columns according to the configured naming convention. Supported naming styles are `snake_case`, `camelCase`, and `lowercase`. If multiple columns would result in the same name after conversion, the plugin automatically appends a numeric suffix (for example, `_2`, `_3`) to ensure all column names remain unique.
+Renames DataFrame columns according to the configured naming convention. Supported naming styles are `snake_case`, `camelCase`, and `lowercase`.
+If multiple columns resolve to the same name after conversion, numeric suffixes (_2, _3, ...) are appended to keep column names unique.
 
 ### Configuration
 
@@ -122,7 +123,8 @@ report:
 
 ## NormalizeMissingValuesPlugin
 
-Normalizes user-defined representations of missing values by replacing matching string values with `pd.NA`. The plugin operates only on string columns and supports optional whitespace trimming and case-insensitive matching before comparing values. Existing missing values are preserved.
+Normalizes user-defined representations of missing values by replacing matching string values with `pd.NA`. The plugin operates only on string columns and supports optional whitespace trimming and case-insensitive matching before comparing values.
+Existing missing values are left unchanged; only matching string values are replaced with pd.NA.
 
 ### Configuration
 
@@ -165,7 +167,9 @@ report:
 
 ## SparseColumnsPlugin
 
-Removes columns whose fraction of missing values is greater than or equal to the configured threshold. The missing-value fraction is calculated independently for each column as the number of missing values divided by the total number of rows. Columns with a missing-value fraction below the threshold are retained.
+Remove columns whose fraction of missing values is greater than or equal to the configured threshold.
+The missing-value fraction is calculated independently for each column as the number of missing values divided by
+the total number of rows. Columns with a missing-value fraction below the threshold are retained.
 
 ### Configuration
 
@@ -245,7 +249,7 @@ report:
 
 ## EmptyRowsPlugin
 
-Removes rows that contain only missing (`NaN`) values from a pandas DataFrame. A row is removed only if every value in that row is missing. Rows containing at least one non-null value are preserved.
+Removes rows that contain only missing values (NaN, pd.NA, etc.) from a pandas DataFrame. A row is removed only if every value in that row is missing. Rows containing at least one non-null value are preserved.
 
 ### Configuration
 
