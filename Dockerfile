@@ -7,6 +7,9 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /workspace
 
+# Create a non-root user
+RUN useradd --create-home --uid 1001 appuser
+
 RUN apt-get update && \
     apt-get install -y --no-install-recommends git git-lfs && \
     git lfs install && \
@@ -23,5 +26,6 @@ RUN apt-get update && \
         build && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
+USER appuser
 
 CMD ["bash"]
