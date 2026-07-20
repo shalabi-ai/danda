@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - improve-doc
+    #  - improve-doc
 
 permissions:
   contents: write
